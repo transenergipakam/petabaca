@@ -44,22 +44,22 @@ input.f{width:100%;font-size:17px;padding:11px;border:1px solid #b8c4c0;border-r
 <header>
  <h1><span>Peta Baca <span id="hUlp" class="chip"></span></span><span id="hUser" style="font-size:11px;font-weight:400;opacity:.9"></span></h1>
  <small id="hKet">memuat…</small>
- <nav><button data-v="Peta" class="on">Peta</button><button data-v="Cari">Cari</button><button data-v="Daftar">Belum terbaca</button><button data-v="Info">Info</button></nav>
+ <nav><button data-v="Peta" class="on">Peta</button><button data-v="Cari">Cari</button><button data-v="Daftar">Terbaca</button><button data-v="Info">Info</button></nav>
 </header>
 <main>
  <section id="vPeta" class="on">
   <div id="peta"></div>
-  <div class="bar"><select id="pilPoly"></select><button id="bSudah" title="tampilkan juga yang sudah terbaca">Sudah</button><button id="bGps" title="Lokasi saya (GPS)">&#9673; Saya</button></div>
-  <div class="leg"><i style="background:#c62828"></i>belum terbaca &nbsp;<i style="background:#2e7d32"></i>sudah &nbsp;<i style="background:#ef6c00"></i>dibaca biller lain<br><span id="legKet"></span></div>
+  <div class="bar"><select id="pilPoly"></select><button id="bGps" title="Lokasi saya (GPS)">&#9673; Saya</button></div>
+  <div class="leg"><i style="background:#2e7d32"></i>terbaca petugas polygon ini &nbsp;<i style="background:#ef6c00"></i>dibaca petugas biller lain<br><span id="legKet"></span></div>
  </section>
  <section id="vCari">
   <input id="q" class="q" inputmode="numeric" placeholder="Ketik nomor meter / IDPEL (min. 3 angka)" autocomplete="off">
-  <div class="s" style="margin:6px 2px">Mencari di seluruh ULP — ketahuan juga kalau sudah dibaca petugas lain.</div>
+  <div class="s" style="margin:6px 2px">Mencari di seluruh ULP. Tidak ditemukan = belum terbaca (menurut Monitoring Fisik terakhir).</div>
   <div id="hasilCari"><div class="kosong">Ketik nomor meter atau IDPEL</div></div>
  </section>
  <section id="vDaftar">
   <div id="ringDaftar" class="ring"></div>
-  <input id="qDaftar" class="q" style="font-size:15px;padding:9px" placeholder="saring nama / nomor" autocomplete="off">
+  <input id="qDaftar" class="q" style="font-size:15px;padding:9px" placeholder="saring nomor meter / IDPEL / petugas" autocomplete="off">
   <div id="hasilDaftar"></div>
   <button id="bLagi" class="btn w" style="display:none">Tampilkan lebih banyak</button>
  </section>
@@ -73,7 +73,7 @@ input.f{width:100%;font-size:17px;padding:11px;border:1px solid #b8c4c0;border-r
  <div id="login">
   <h2>Peta Baca</h2>
   <div class="s" id="loginKet"></div>
-  <label class="f">ULP</label><select id="lUlp" class="f"></select>
+  <label class="f">ULP</label><input id="lUlp" class="f" list="dUlp" autocapitalize="characters" placeholder="pilih atau ketik, mis. RAMPAH"><datalist id="dUlp"></datalist>
   <label class="f">User</label><input id="lUser" class="f" autocomplete="username" autocapitalize="characters">
   <label class="f">Sandi</label><input id="lPass" class="f" type="password" autocomplete="current-password">
   <button class="btn" id="bMasuk">Masuk</button>
@@ -89,7 +89,7 @@ var $=function(i){return document.getElementById(i)};
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 var PALET=['#C62828','#2E7D32','#5E35B1','#8D6E00','#AD1457','#00695C','#283593','#D84315','#4E342E','#00838F','#6A1B9A','#558B2F','#EF6C00','#1565C0','#37474F','#827717','#B71C1C','#1B5E20','#4527A0','#F9A825'];
 var warna=function(h){var c=String(h||'').toUpperCase().charCodeAt(0)-65;return PALET[(c>=0&&c<26?c:0)%PALET.length]};
-var D=null,K=null,ULP='',USER='',peta=null,lapis=null,gps=null,gpsL=null,tampilSudah=false,poly='',nDaftar=200;
+var D=null,K=null,ULP='',USER='',peta=null,lapis=null,gps=null,gpsL=null,poly='',nDaftar=200;
 var te=new TextEncoder();
 function b64d(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
 function b64e(u){var s='';for(var i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)}
@@ -124,10 +124,9 @@ async function mulai(){
  var sesi=null;try{sesi=JSON.parse(localStorage.getItem('pb_sesi_'+ULP)||'null')}catch(e){}
  if(ULP&&sesi&&sesi.k){USER=sesi.u;K=b64d(sesi.k);try{await muatData(false)}catch(e){tampilLogin(e.message)}}else tampilLogin('')}
 async function tampilLogin(pesan){$('login').classList.add('on');$('pesan').textContent=pesan||'';
- var L=await daftarUlp(),h='';L.forEach(function(x){var v=String(x.ulp||x).toUpperCase();h+='<option value="'+esc(v)+'"'+(v==ULP?' selected':'')+'>'+esc(x.nama||v)+'</option>'});
- if(ULP&&!L.some(function(x){return String(x.ulp||x).toUpperCase()==ULP}))h='<option value="'+esc(ULP)+'" selected>'+esc(ULP)+'</option>'+h;
- $('lUlp').innerHTML=h||'<option value="">(daftar ULP belum ada)</option>';$('loginKet').textContent='Masukkan user dan sandi yang diberikan admin ULP.'}
-$('bMasuk').onclick=async function(){var ulp=$('lUlp').value.toUpperCase(),user=$('lUser').value.trim(),pass=$('lPass').value;
+ var L=await daftarUlp(),h='';L.forEach(function(x){var v=String(x.ulp||x).toUpperCase();h+='<option value="'+esc(v)+'">'+esc(x.nama||v)+'</option>'});
+ $('dUlp').innerHTML=h;if(ULP)$('lUlp').value=ULP;$('loginKet').textContent='Masukkan user dan sandi yang diberikan admin ULP.'}
+$('bMasuk').onclick=async function(){var ulp=$('lUlp').value.trim().toUpperCase().replace(/\s+/g,'_'),user=$('lUser').value.trim(),pass=$('lPass').value;
  if(!ulp||!user||!pass){$('pesan').textContent='Lengkapi ULP, user, dan sandi.';return}
  $('pesan').textContent='Memeriksa…';$('bMasuk').disabled=true;
  try{ULP=ulp;var a=await ambilPaket(ulp,false);K=await bukaKunci(a.paket,user,pass);USER=user.toUpperCase();
@@ -138,10 +137,10 @@ $('bMasuk').onclick=async function(){var ulp=$('lUlp').value.toUpperCase(),user=
 async function muatData(paksa,a){a=a||await ambilPaket(ULP,paksa);
  try{D=await bukaData(a.paket,K)}catch(e){localStorage.removeItem('pb_sesi_'+ULP);throw new Error('Sandi tidak cocok dengan data terbaru. Masuk lagi.')}
  $('login').classList.remove('on');$('hUlp').textContent=D.ulp;$('hUser').textContent=USER;
- var k='Data '+tgl(D.dibuat)+' · '+D.rows.length.toLocaleString('id-ID')+' pelanggan';
+ var k='Data '+tgl(D.dibuat)+' · '+D.rows.length.toLocaleString('id-ID')+' terbaca';
  if(a.sumber=='tersimpan')k+=' · (tersimpan, tanpa jaringan)';$('hKet').textContent=k;
  siapkanIndeks();siapkanPeta();gambarSemua();
- $('infoData').innerHTML='<b>ULP '+esc(D.ulp_asli||D.ulp)+'</b><br>Periode RBM '+esc(D.blth||'-')+'<br>Monitoring Fisik '+esc(D.fisik_blth||'-')+(D.fisik_waktu?' (diunggah '+esc(D.fisik_waktu)+')':'')+'<br>Berkas dibuat '+tgl(D.dibuat)+'<br>'+D.rows.length.toLocaleString('id-ID')+' pelanggan · '+D.rows.filter(function(r){return r[4]}).length.toLocaleString('id-ID')+' sudah terbaca<br>Sumber data terakhir: '+(a.sumber=='baru'?'diambil dari internet barusan':a.sumber=='sama'?'internet (tidak ada perubahan)':'tersimpan di HP')}
+ $('infoData').innerHTML='<b>ULP '+esc(D.ulp_asli||D.ulp)+'</b><br>Periode RBM '+esc(D.blth||'-')+'<br>Monitoring Fisik '+esc(D.fisik_blth||'-')+(D.fisik_waktu?' (diunggah '+esc(D.fisik_waktu)+')':'')+'<br>Berkas dibuat '+tgl(D.dibuat)+'<br>'+D.rows.length.toLocaleString('id-ID')+' pelanggan terbaca<br>Sumber data terakhir: '+(a.sumber=='baru'?'diambil dari internet barusan':a.sumber=='sama'?'internet (tidak ada perubahan)':'tersimpan di HP')}
 /* ---- data ---- */
 var IDX={},POLYS=[];
 function siapkanIndeks(){POLYS=[];D.rows.forEach(function(r){if(POLYS.indexOf(r[3])<0)POLYS.push(r[3])});POLYS.sort();
@@ -155,18 +154,19 @@ function labelPoly(){var s=$('pilPoly');return s.options[s.selectedIndex]?s.opti
 function kelas(r){var ok=!!r[4];if(!ok)return'no';if(r[10]&&r[3]!='LUAR'&&r[10]!=r[3].charAt(0))return'lain';return'ok'}
 function kartu(r,i){var c=kelas(r);
  var st=c=='no'?'BELUM TERBACA':'SUDAH TERBACA '+esc(r[4])+' oleh '+esc(r[5])+(c=='lain'?' (biller '+esc(r[10])+')':'');
- return'<div class="r '+c+'"><div class="m">'+esc(r[0]||'-')+'</div><div class="s">IDPEL '+esc(r[1])+' · '+esc(r[2])+(r[8]?' · '+esc(r[8])+'/'+esc(r[9]):'')+' · '+(r[3]=='LUAR'?'<b>di luar polygon</b>':'polygon <b>'+esc(r[3])+'</b>')+'</div><div class="st">'+st+'</div>'
+ return'<div class="r '+c+'"><div class="m">'+esc(r[0]||'-')+'</div><div class="s">IDPEL '+esc(r[1])+(r[2]?' · '+esc(r[2]):'')+(r[8]?' · '+esc(r[8])+'/'+esc(r[9]):'')+' · '+(r[3]=='LUAR'?'<b>di luar polygon</b>':'polygon <b>'+esc(r[3])+'</b>')+'</div><div class="st">'+st+'</div>'
  +(isFinite(r[6])&&isFinite(r[7])&&r[6]?'<button class="k" onclick="kePeta('+i+')">Lihat di peta</button><a href="https://www.google.com/maps/search/?api=1&query='+r[6]+','+r[7]+'" target="_blank">Google Maps</a>':'')+'</div>'}
 function cocok(r,q){return String(r[0]).indexOf(q)>=0||String(r[1]).indexOf(q)>=0}
 function cari(){var q=$('q').value.trim().replace(/\s+/g,'');if(q.length<3){$('hasilCari').innerHTML='<div class="kosong">Ketik minimal 3 angka nomor meter / IDPEL</div>';return}
  var out=[];for(var i=0;i<D.rows.length&&out.length<50;i++)if(cocok(D.rows[i],q))out.push(kartu(D.rows[i],i));
- $('hasilCari').innerHTML=out.length?out.join(''):'<div class="kosong">Tidak ditemukan di seluruh ULP</div>'}
+ $('hasilCari').innerHTML=out.length?out.join(''):'<div class="r no"><div class="m">'+esc(q)+'</div><div class="st">BELUM TERBACA</div><div class="s">tidak ada di Monitoring Fisik '+esc(D.fisik_blth||'')+' seluruh ULP'+(q.length<11?' (nomor mungkin belum lengkap)':'')+'</div></div>'}
 function daftar(){var q=$('qDaftar').value.trim().toLowerCase(),L=[],idx=[];
- for(var i=0;i<D.rows.length;i++){var r=D.rows[i];if(!masuk(r)||r[4])continue;if(q&&String(r[0]).indexOf(q)<0&&String(r[1]).indexOf(q)<0&&String(r[2]).toLowerCase().indexOf(q)<0)continue;L.push(i)}
- L.sort(function(a,b){return D.rows[a][3].localeCompare(D.rows[b][3])||String(D.rows[a][0]).localeCompare(String(D.rows[b][0]))});
- var tot=0,sud=0;D.rows.forEach(function(r){if(masuk(r)){tot++;if(r[4])sud++}});
- $('ringDaftar').innerHTML='<div class="s">'+esc(labelPoly())+'</div><b>'+tot.toLocaleString('id-ID')+'</b> pelanggan · <b style="color:#2e7d32">'+sud.toLocaleString('id-ID')+'</b> sudah · <b style="color:#c62828">'+(tot-sud).toLocaleString('id-ID')+'</b> belum terbaca';
- $('hasilDaftar').innerHTML=L.length?L.slice(0,nDaftar).map(function(i){return kartu(D.rows[i],i)}).join(''):'<div class="kosong">Semua sudah terbaca</div>';
+ for(var i=0;i<D.rows.length;i++){var r=D.rows[i];if(!masuk(r))continue;if(q&&String(r[0]).indexOf(q)<0&&String(r[1]).indexOf(q)<0&&String(r[5]).toLowerCase().indexOf(q)<0)continue;L.push(i)}
+ L.sort(function(a,b){return String(D.rows[b][4]).localeCompare(String(D.rows[a][4]))||String(D.rows[a][0]).localeCompare(String(D.rows[b][0]))});
+ var tot=0,lain=0,P={};D.rows.forEach(function(r){if(masuk(r)){tot++;if(kelas(r)=='lain')lain++;var p=r[5]||'-';P[p]=(P[p]||0)+1}});
+ var rk=Object.keys(P).sort().map(function(p){return esc(p)+': <b>'+P[p]+'</b>'}).join(' · ');
+ $('ringDaftar').innerHTML='<div class="s">'+esc(labelPoly())+'</div><b>'+tot.toLocaleString('id-ID')+'</b> pelanggan terbaca'+(lain?' · <b style="color:#ef6c00">'+lain+'</b> oleh petugas biller lain':'')+'<div class="s" style="margin-top:4px">'+rk+'</div>';
+ $('hasilDaftar').innerHTML=L.length?L.slice(0,nDaftar).map(function(i){return kartu(D.rows[i],i)}).join(''):'<div class="kosong">Belum ada yang terbaca di sini</div>';
  $('bLagi').style.display=L.length>nDaftar?'block':'none'}
 /* ---- peta ---- */
 function siapkanPeta(){if(peta)return;peta=L.map('peta',{preferCanvas:true,zoomControl:false});L.control.zoom({position:'bottomright'}).addTo(peta);
@@ -183,11 +183,11 @@ function gambarSemua(){lapis.clearLayers();var batas=[];
   var sx=0,sy=0;ll.forEach(function(a){sx+=a[0];sy+=a[1]});L.marker([sx/ll.length,sy/ll.length],{interactive:false,icon:L.divIcon({className:'',html:'<div style="transform:translate(-50%,-50%);display:inline-block;font:800 12px/16px system-ui;color:'+col+';background:#fff;padding:1px 7px;border-radius:9px;border:1.5px solid '+col+';white-space:nowrap">'+nm+'</div>',iconSize:[0,0]})}).addTo(lapis);
   if(tebal){batas=[];ll.forEach(function(x){batas.push(x)})}});
  var n=0,ns=0;
- D.rows.forEach(function(r,i){if(!masuk(r)||!r[6]||!r[7])return;var c=kelas(r);if(c!='no'&&!tampilSudah){ns++;return}
+ D.rows.forEach(function(r,i){if(!masuk(r)||!r[6]||!r[7])return;var c=kelas(r);
   var col=c=='no'?'#c62828':c=='lain'?'#ef6c00':'#2e7d32';n++;
-  L.circleMarker([r[6],r[7]],{radius:c=='no'?5:4,color:'#fff',weight:1,fillColor:col,fillOpacity:.9}).bindPopup(function(){return popup(r,i)}).addTo(lapis);
+  L.circleMarker([r[6],r[7]],{radius:4,color:'#fff',weight:1,fillColor:col,fillOpacity:.9}).bindPopup(function(){return popup(r,i)}).addTo(lapis);
   if(!batas.length)batas.push([r[6],r[7]])});
- $('legKet').textContent=n.toLocaleString('id-ID')+' titik'+(tampilSudah?'':' belum terbaca')+(ns?' · '+ns.toLocaleString('id-ID')+' sudah disembunyikan':'');
+ $('legKet').textContent=n.toLocaleString('id-ID')+' titik terbaca · '+labelPoly();
  if(batas.length&&!peta._dipas){try{peta.fitBounds(batas,{padding:[20,20]})}catch(e){}peta._dipas=true}}
 function popup(r,i){var c=kelas(r);return'<b style="font-size:16px">'+esc(r[0]||'-')+'</b><br>IDPEL '+esc(r[1])+'<br>'+esc(r[2])+(r[8]?' · '+esc(r[8])+'/'+esc(r[9]):'')+'<br>polygon <b>'+esc(r[3])+'</b><br><b style="color:'+(c=='no'?'#c62828':c=='lain'?'#ef6c00':'#2e7d32')+'">'+(c=='no'?'BELUM TERBACA':'SUDAH '+esc(r[4])+' oleh '+esc(r[5]))+'</b><br><a href="https://www.google.com/maps/dir/?api=1&destination='+r[6]+','+r[7]+'" target="_blank">Rute Google Maps</a>'}
 function kePeta(i){var r=D.rows[i];lihat('Peta');setTimeout(function(){peta.invalidateSize();peta.setView([r[6],r[7]],18);L.popup().setLatLng([r[6],r[7]]).setContent(popup(r,i)).openOn(peta)},60)}
@@ -201,7 +201,6 @@ function lihat(v){document.querySelectorAll('nav button').forEach(function(b){b.
  if(v=='Peta'&&peta)setTimeout(function(){peta.invalidateSize()},50);if(v=='Daftar'&&D)daftar()}
 document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){lihat(b.getAttribute('data-v'))}});
 $('pilPoly').onchange=function(){poly=this.value;localStorage.setItem('pb_poly_'+ULP,poly);peta._dipas=false;gambarSemua()};
-$('bSudah').onclick=function(){tampilSudah=!tampilSudah;this.classList.toggle('on',tampilSudah);gambarSemua()};
 $('bGps').onclick=toggleGps;$('q').addEventListener('input',cari);$('qDaftar').addEventListener('input',function(){nDaftar=200;daftar()});
 $('bLagi').onclick=function(){nDaftar+=300;daftar()};
 $('bSegar').onclick=async function(){this.disabled=true;this.textContent='Mengambil…';try{await muatData(true);alert('Data diperbarui: '+tgl(D.dibuat))}catch(e){alert(e.message||e)}this.disabled=false;this.textContent='↻ Ambil data terbaru'};
