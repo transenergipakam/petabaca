@@ -161,9 +161,10 @@ $('bTim').onclick=function(){if(D&&D.tim>1)tampilPilihTim()};$('bGantiTim').oncl
 $('bKeluar').onclick=function(){try{localStorage.removeItem(KUNCI+':c')}catch(e){}location.reload()};
 function milik(){return D.to.filter(function(t){return t.tm==TIM})}
 function pakaiTim(t){TIM=t;simpan(':tim',t);URUT=null;var x=D.tims[t-1]||{b:0,n:0,k:0};
+ if(!x.b&&x.n){F.semua=true;segR='A';Array.prototype.forEach.call(document.querySelectorAll('#segR button'),function(q){q.classList.toggle('on',q.dataset.s=='A')});toast('Semua TO tim ini sudah diperiksa - ditampilkan hasilnya')}tombolF();
  $('bTim').textContent='Tim '+t+(D.tim>1?' ▾':'');$('bTim').style.background='#fff';$('bTim').style.color=TW[(t-1)%5];
  $('hKet').textContent=x.b+' TO belum diperiksa · '+x.k+' lokasi · data '+D.stempel;
- $('infoData').innerHTML='<b>'+esc(D.ulp)+'</b> &middot; Tim '+t+' dari '+D.tim+'<br>TO tim: '+x.n+' ('+x.b+' belum diperiksa)<br>Seluruh ULP: '+D.to.length+' TO, '+D.kel.length+' lokasi<br>Disusun '+esc(D.stempel)+(D.oleh?' oleh '+esc(D.oleh):'')+'<br><span class="t2">Sumber: TO P2TL Hit n Rate '+(D.jenis=='kwh'?'(AI Meter Scan)':D.jenis=='rumah'?'(AI House Scan)':'(AI Meter Scan + AI House Scan)')+(D.blth?' periode '+esc(D.blth):'')+'</span>';
+ $('infoData').innerHTML='<b>'+esc(D.ulp)+'</b> &middot; Tim '+t+' dari '+D.tim+'<br>TO tim: '+x.n+' ('+x.b+' belum diperiksa)<br>Seluruh ULP: '+D.to.length+' TO, '+D.kel.length+' lokasi<br>Disusun '+esc(D.stempel)+(D.oleh?' oleh '+esc(D.oleh):'')+'<br><span class="t2">Sumber: '+((D.sumber||['hitrate']).map(function(s){return s=='aiscan'?'kandidat AI Meter Scan (belum disahkan)':s=='house'?'kandidat AI House Scan (belum disahkan)':'TO P2TL Hit n Rate'+(D.jenis=='kwh'?' kWh':D.jenis=='rumah'?' rumah':'')}).join(' + '))+(D.blth?' · periode '+esc(D.blth):'')+'</span>';
  gambar();isiRute();isiKel();keWilayah()}
 /* ---------- peta ---------- */
 function bikinPeta(){if(peta)return;peta=L.map('peta',{zoomControl:false,attributionControl:true}).setView([2.9,99.1],11);
@@ -209,7 +210,7 @@ $('bUrutSaya').onclick=function(){mulaiGps(function(){var s=sisaBelum().filter(f
 function gmapsUrl(){var o=urutan().filter(function(t){return t.lat!=null}).slice(0,4);if(!o.length)return null;
  var u='https://www.google.com/maps/dir/?api=1&travelmode=driving&destination='+o[o.length-1].lat+','+o[o.length-1].lon;
  if(POS)u+='&origin='+POS[0]+','+POS[1];if(o.length>1)u+='&waypoints='+o.slice(0,-1).map(function(t){return t.lat+','+t.lon}).join('%7C');return u}
-function chips(t){var h='';if(t.j.kwh)h+='<span class="pill">TO kWh</span>';if(t.j.rumah)h+='<span class="pill">TO Rumah</span>';
+function chips(t){var h='';if(t.j.kwh)h+='<span class="pill">TO kWh</span>';if(t.j.rumah)h+='<span class="pill">TO Rumah</span>';if(t.ks)h+='<span class="pill o">kandidat AI · belum disahkan</span>';
  if(t.st=='T')h+='<span class="pill r">Temuan</span>';else if(t.st=='N')h+='<span class="pill g">Normal</span>';
  if(t.pa&&t.pa.kat&&t.pa.kat!='NORMAL'&&t.pa.kat!='DATA_KURANG')h+='<span class="pill o">'+esc(KAT[t.pa.kat]||t.pa.kat)+'</span>';
  if(t.lat==null)h+='<span class="pill r">tanpa koordinat</span>';return h}
@@ -229,11 +230,11 @@ function cari(ip){for(var i=0;i<D.to.length;i++)if(D.to[i].ip==ip)return D.to[i]
 function isiKel(){var ks=D.kel.slice().sort(function(a,b){return (b.tim==TIM)-(a.tim==TIM)||b.b-a.b||b.n-a.n});
  $('kelDaftar').innerHTML=ks.map(function(k){var sy=k.tim==TIM;return '<div class="card" data-k="'+k.id+'" style="border-left:5px solid '+TW[(k.tim-1)%5]+';'+(sy?'':'opacity:.6')+'"><div class="row"><div class="u" style="background:'+TW[(k.tim-1)%5]+'">'+k.b+'</div><div style="flex:1"><div class="t1">'+esc(k.id)+' · '+esc(k.nama)+'</div><div class="t2">'+k.b+' belum diperiksa dari '+k.n+' TO · radius '+k.rad+' m · '+(D.tim>1?'<b style="color:'+TW[(k.tim-1)%5]+'">Tim '+k.tim+(sy?' (tim Anda)':'')+'</b> · ':'')+'urutan ke-'+k.urut+'</div></div></div></div>'}).join('');
  Array.prototype.forEach.call($('kelDaftar').children,function(e){e.onclick=function(){var k=D.kel.filter(function(x){return x.id==e.dataset.k})[0];bukaKel(k)}})}
-function bukaKel(k){tab('Peta');if(k.tim!=TIM&&!F.lain){F.lain=true;tombolF();gambar()}peta.fitBounds(L.latLng(k.lat,k.lon).toBounds(k.rad*2.2),{maxZoom:18});ambilPak(k.id).catch(function(){})}
+function bukaKel(k){tab('Peta');if(k.tim!=TIM&&!F.lain){F.lain=true;tombolF();gambar()}peta.fitBounds(L.latLng(k.lat,k.lon).toBounds(k.rad*2.2),{maxZoom:18});var x=D.to.filter(function(t){return t.k==k.id&&t.pk})[0];if(x)ambilPak(x.pk).catch(function(){})}
 /* ---------- foto ---------- */
 function ambilPak(kid){if(PAK[kid])return PAK[kid];PAK[kid]=fetch('./f/'+kid+'.bin').then(function(r){if(!r.ok)throw new Error('foto '+r.status);return r.arrayBuffer()}).then(function(b){var u=new Uint8Array(b);return dekrip(K,u.slice(0,12),u.slice(12))}).then(function(pt){return JSON.parse(new TextDecoder().decode(pt))}).catch(function(e){delete PAK[kid];throw e});return PAK[kid]}
 function isiFoto(t){var el=$('fotoBox');if(!el)return;if(!t.f){el.innerHTML='<div>tidak ada foto kWh</div><div>tidak ada foto rumah</div>';return}
- ambilPak(t.k).then(function(p){var x=p[t.ip]||{};if(!$('fotoBox')||$('fotoBox').dataset.ip!=t.ip)return;
+ ambilPak(t.pk||t.k).then(function(p){var x=p[t.ip]||{};if(!$('fotoBox')||$('fotoBox').dataset.ip!=t.ip)return;
   $('fotoBox').innerHTML=[['k','Foto kWh'],['r','Foto rumah']].map(function(a){return x[a[0]]?'<div><img src="data:image/jpeg;base64,'+x[a[0]]+'" data-z="1"><span>'+a[1]+'</span></div>':'<div>tidak ada '+a[1].toLowerCase()+'</div>'}).join('');
   Array.prototype.forEach.call(document.querySelectorAll('#fotoBox img'),function(i){i.onclick=function(){$('zImg').src=i.src;$('zoom').classList.add('on')}})})
  .catch(function(){if($('fotoBox'))$('fotoBox').innerHTML='<div>foto belum bisa dimuat (sinyal)</div><div></div>'})}
@@ -241,7 +242,7 @@ $('zoom').onclick=function(){$('zoom').classList.remove('on')};
 /* ---------- kartu TO ---------- */
 function rp(v){return v==null?'-':'Rp '+Math.round(v).toLocaleString('id-ID')}
 function bln(b){var n=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];b=String(b||'');return b.length==6?n[(+b.slice(4))-1]+' '+b.slice(2,4):b}
-function blokJ(nama,d){if(!d)return'';var h='<h3>'+nama+'</h3><dl><dt>Status</dt><dd>'+esc(HS[d.h]||d.h)+'</dd><dt>Kriteria</dt><dd>'+esc(d.kr||'-')+'</dd>'+(d.kd?'<dt>Kondisi AI</dt><dd>'+esc(d.kd)+'</dd>':'')+'<dt>Periode (blth)</dt><dd>'+esc(d.pr||'-')+'</dd>';
+function blokJ(nama,d){if(!d)return'';var h='<h3>'+nama+'</h3><dl><dt>Status</dt><dd>'+esc(d.ks?'Kandidat AI, belum disahkan':(HS[d.h]||d.h))+'</dd><dt>Kriteria</dt><dd>'+esc(d.kr||'-')+'</dd>'+(d.kd?'<dt>Kondisi AI</dt><dd>'+esc(d.kd)+'</dd>':'')+'<dt>Periode (blth)</dt><dd>'+esc(d.pr||'-')+'</dd>';
  if(d.h!='BELUM')h+='<dt>Diperiksa</dt><dd>'+esc(d.tg||'-')+(d.ol?' · '+esc(d.ol):'')+'</dd>';
  if(d.h=='TEMUAN')h+='<dt>Golongan</dt><dd>'+esc(d.gol||'-')+'</dd><dt>kWh temuan</dt><dd>'+(d.kw!=null?Math.round(d.kw).toLocaleString('id-ID')+' kWh':'-')+'</dd><dt>Tagihan</dt><dd>'+rp(d.rp)+'</dd>';
  if(d.ct)h+='<dt>Catatan</dt><dd>'+esc(d.ct)+'</dd>';return h+'</dl>'}
@@ -273,7 +274,7 @@ $('lTutup').onclick=function(){$('lembar').classList.remove('on')};
 function tab(v){Array.prototype.forEach.call(document.querySelectorAll('nav button'),function(b){b.classList.toggle('on',b.dataset.v==v)});
  Array.prototype.forEach.call(document.querySelectorAll('section'),function(s){s.classList.toggle('on',s.id=='v'+v)});if(v=='Peta'&&peta)setTimeout(function(){peta.invalidateSize()},50);if(v=='Rute')isiRute()}
 Array.prototype.forEach.call(document.querySelectorAll('nav button'),function(b){b.onclick=function(){tab(b.dataset.v)}});
-$('bOffline').onclick=async function(){var ks={};milik().forEach(function(t){if(t.f)ks[t.k]=1});ks=Object.keys(ks);var ok=0;
+$('bOffline').onclick=async function(){var ks={};milik().forEach(function(t){if(t.f)ks[t.pk||t.k]=1});ks=Object.keys(ks);var ok=0;
  for(var i=0;i<ks.length;i++){$('offKet').textContent='Menyimpan foto '+(i+1)+'/'+ks.length+'…';try{await ambilPak(ks[i]);ok++}catch(e){}}
  $('offKet').textContent=ok==ks.length?'Selesai: foto '+ks.length+' lokasi tersimpan di HP ini.':'Tersimpan '+ok+'/'+ks.length+' lokasi; ulangi saat sinyal bagus.'};
 mulai();
