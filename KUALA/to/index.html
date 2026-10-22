@@ -164,7 +164,7 @@ function pakaiTim(t){TIM=t;simpan(':tim',t);URUT=null;var x=D.tims[t-1]||{b:0,n:
  if(!x.b&&x.n){F.semua=true;segR='A';Array.prototype.forEach.call(document.querySelectorAll('#segR button'),function(q){q.classList.toggle('on',q.dataset.s=='A')});toast('Semua TO tim ini sudah diperiksa - ditampilkan hasilnya')}tombolF();
  $('bTim').textContent='Tim '+t+(D.tim>1?' ▾':'');$('bTim').style.background='#fff';$('bTim').style.color=TW[(t-1)%5];
  $('hKet').textContent=x.b+' TO belum diperiksa · '+x.k+' lokasi · data '+D.stempel;
- $('infoData').innerHTML='<b>'+esc(D.ulp)+'</b> &middot; Tim '+t+' dari '+D.tim+'<br>TO tim: '+x.n+' ('+x.b+' belum diperiksa)<br>Seluruh ULP: '+D.to.length+' TO, '+D.kel.length+' lokasi<br>Disusun '+esc(D.stempel)+(D.oleh?' oleh '+esc(D.oleh):'')+'<br><span class="t2">Sumber: '+((D.sumber||['hitrate']).map(function(s){return s=='aiscan'?'kandidat AI Meter Scan (belum disahkan)':s=='house'?'kandidat AI House Scan (belum disahkan)':'TO P2TL Hit n Rate'+(D.jenis=='kwh'?' kWh':D.jenis=='rumah'?' rumah':'')}).join(' + '))+(D.blth?' · periode '+esc(D.blth):'')+'</span>';
+ $('infoData').innerHTML='<b>'+esc(D.ulp)+'</b> &middot; Tim '+t+' dari '+D.tim+'<br>TO tim: '+x.n+' ('+x.b+' belum diperiksa)<br>Seluruh ULP: '+D.to.length+' TO, '+D.kel.length+' lokasi<br>Disusun '+esc(D.stempel)+(D.oleh?' oleh '+esc(D.oleh):'')+'<br><span class="t2">Sumber: '+((D.sumber||['hitrate']).map(function(s){return {aiscan:'TO kWh belum disahkan (AI Meter Scan)',house:'TO rumah belum disahkan (AI House Scan)',hit_kwh:'TO kWh disahkan (Hit n Rate)',hit_rumah:'TO rumah disahkan (Hit n Rate)',prepaid:'TO Prepaid Analysis',pindah:'TO Meter Pindah'}[s]||'TO P2TL Hit n Rate'}).join(' + '))+(D.blth?' · periode '+esc(D.blth):'')+'</span>';
  gambar();isiRute();isiKel();keWilayah()}
 /* ---------- peta ---------- */
 function bikinPeta(){if(peta)return;peta=L.map('peta',{zoomControl:false,attributionControl:true}).setView([2.9,99.1],11);
@@ -210,7 +210,7 @@ $('bUrutSaya').onclick=function(){mulaiGps(function(){var s=sisaBelum().filter(f
 function gmapsUrl(){var o=urutan().filter(function(t){return t.lat!=null}).slice(0,4);if(!o.length)return null;
  var u='https://www.google.com/maps/dir/?api=1&travelmode=driving&destination='+o[o.length-1].lat+','+o[o.length-1].lon;
  if(POS)u+='&origin='+POS[0]+','+POS[1];if(o.length>1)u+='&waypoints='+o.slice(0,-1).map(function(t){return t.lat+','+t.lon}).join('%7C');return u}
-function chips(t){var h='';if(t.j.kwh)h+='<span class="pill">TO kWh</span>';if(t.j.rumah)h+='<span class="pill">TO Rumah</span>';if(t.ks)h+='<span class="pill o">kandidat AI · belum disahkan</span>';
+function chips(t){var h='';if(t.j.kwh)h+='<span class="pill">TO kWh</span>';if(t.j.rumah)h+='<span class="pill">TO Rumah</span>';if(t.j.prepaid)h+='<span class="pill">TO Prepaid</span>';if(t.j.alamat)h+='<span class="pill">Meter pindah</span>';if(t.ks)h+='<span class="pill o">kandidat AI · belum disahkan</span>';
  if(t.st=='T')h+='<span class="pill r">Temuan</span>';else if(t.st=='N')h+='<span class="pill g">Normal</span>';
  if(t.pa&&t.pa.kat&&t.pa.kat!='NORMAL'&&t.pa.kat!='DATA_KURANG')h+='<span class="pill o">'+esc(KAT[t.pa.kat]||t.pa.kat)+'</span>';
  if(t.lat==null)h+='<span class="pill r">tanpa koordinat</span>';return h}
@@ -260,7 +260,7 @@ function kartu(t){if(!t)return;AKTIF=t;var sy=t.tm==TIM;
   '<div class="foto" id="fotoBox" data-ip="'+t.ip+'"><div>memuat foto…</div><div>memuat foto…</div></div>'+
   '<div class="aksi">'+(nav?'<a class="btn" href="'+nav+'" target="_blank" rel="noopener">&#129517; Navigasi</a>':'<span class="btn l">tanpa koordinat</span>')+
   (sy&&t.st=='B'?'<button class="btn l" id="bVis">'+(VIS[t.ip]?'Batal tanda':'&#10003; Sudah dikunjungi')+'</button>':'<button class="btn l" id="bSalin">Salin IDPEL</button>')+'</div>'+
-  blokJ('TO kWh (AI Meter Scan)',t.j.kwh)+blokJ('TO Rumah (AI House Scan)',t.j.rumah)+blokPA(t.pa)+
+  blokJ('TO kWh (AI Meter Scan)',t.j.kwh)+blokJ('TO Rumah (AI House Scan)',t.j.rumah)+blokJ('TO Prepaid Analysis',t.j.prepaid)+blokJ('TO Meter Pindah (Analisa Pindah Alamat)',t.j.alamat)+blokPA(t.pa)+
   '<h3>Pelanggan</h3><dl><dt>IDPEL</dt><dd>'+esc(t.ip)+'</dd><dt>No meter</dt><dd>'+esc(t.nm||'-')+'</dd><dt>Nama</dt><dd>'+esc(t.na||'-')+'</dd><dt>Alamat</dt><dd>'+esc(t.al||'-')+'</dd><dt>Desa</dt><dd>'+esc(t.ds||'-')+'</dd><dt>Kecamatan</dt><dd>'+esc(t.kc||'-')+'</dd><dt>Tarif/Daya</dt><dd>'+esc(t.td||'-')+'</dd><dt>Lokasi</dt><dd>'+esc(t.k)+' · '+esc(t.sb||'-')+(POS&&t.lat!=null?' · '+jarakT(t)+' dari Anda':'')+'</dd></dl>'+
   (sy&&t.st=='B'?'<button class="btn w" id="bLanjut">TO berikutnya &#9654;</button>':'');
  $('lIsi').innerHTML=h;$('lembar').classList.add('on');$('lembar').scrollTop=0;isiFoto(t);
