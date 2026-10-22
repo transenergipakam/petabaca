@@ -241,7 +241,7 @@ $('zoom').onclick=function(){$('zoom').classList.remove('on')};
 /* ---------- kartu TO ---------- */
 function rp(v){return v==null?'-':'Rp '+Math.round(v).toLocaleString('id-ID')}
 function bln(b){var n=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];b=String(b||'');return b.length==6?n[(+b.slice(4))-1]+' '+b.slice(2,4):b}
-function blokJ(nama,d){if(!d)return'';var h='<h3>'+nama+'</h3><dl><dt>Status</dt><dd>'+esc(HS[d.h]||d.h)+'</dd><dt>Kriteria</dt><dd>'+esc(d.kr||'-')+'</dd>'+(d.kd?'<dt>Kondisi AI</dt><dd>'+esc(d.kd)+'</dd>':'')+'<dt>Periode foto</dt><dd>'+esc(bln(d.pr))+'</dd>';
+function blokJ(nama,d){if(!d)return'';var h='<h3>'+nama+'</h3><dl><dt>Status</dt><dd>'+esc(HS[d.h]||d.h)+'</dd><dt>Kriteria</dt><dd>'+esc(d.kr||'-')+'</dd>'+(d.kd?'<dt>Kondisi AI</dt><dd>'+esc(d.kd)+'</dd>':'')+'<dt>Periode (blth)</dt><dd>'+esc(d.pr||'-')+'</dd>';
  if(d.h!='BELUM')h+='<dt>Diperiksa</dt><dd>'+esc(d.tg||'-')+(d.ol?' · '+esc(d.ol):'')+'</dd>';
  if(d.h=='TEMUAN')h+='<dt>Golongan</dt><dd>'+esc(d.gol||'-')+'</dd><dt>kWh temuan</dt><dd>'+(d.kw!=null?Math.round(d.kw).toLocaleString('id-ID')+' kWh':'-')+'</dd><dt>Tagihan</dt><dd>'+rp(d.rp)+'</dd>';
  if(d.ct)h+='<dt>Catatan</dt><dd>'+esc(d.ct)+'</dd>';return h+'</dl>'}
