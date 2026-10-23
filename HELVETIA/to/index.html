@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f5a4a">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>Peta TO HELVETIA</title>
+<link rel="stylesheet" href="../../lib/leaflet.css">
+<style>
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#eef3f1;color:#17302b;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+header{background:#0f5a4a;color:#fff;padding:8px 12px 0;flex:none}
+header h1{font-size:15px;margin:0;display:flex;align-items:center;gap:8px}
+header h1 .tim{margin-left:auto;font-size:12px;background:#fff;color:#0f5a4a;border-radius:999px;padding:3px 10px;font-weight:800;border:0}
+header small{display:block;font-size:11px;opacity:.85;margin-top:2px}
+nav{display:flex;margin-top:6px}
+nav button{flex:1;background:none;border:0;color:#cfe5de;font-size:13px;font-weight:700;padding:9px 0;border-bottom:3px solid transparent}
+nav button.on{color:#fff;border-bottom-color:#7fe0c0}
+main{flex:1;min-height:0;position:relative}
+section{position:absolute;inset:0;overflow:auto;padding:10px 10px 90px;display:none}section.on{display:block}
+#vPeta{padding:0}#peta{position:absolute;inset:0;background:#dde5e2}
+.fab{position:absolute;right:10px;z-index:800;display:flex;flex-direction:column;gap:8px}
+.fab button{width:46px;height:46px;border-radius:14px;border:0;background:#fff;color:#0f5a4a;font-size:19px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.fab button.on{background:#0f5a4a;color:#fff}
+.chipbar{position:absolute;left:10px;top:10px;right:66px;z-index:800;display:flex;gap:6px;flex-wrap:wrap}
+.chipbar button{border:0;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;background:#fff;color:#17302b;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.chipbar button.on{background:#17302b;color:#fff}
+.leg{position:absolute;left:10px;bottom:12px;z-index:700;background:#fffe;border-radius:10px;padding:6px 9px;font-size:11px;line-height:1.6;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.nb{background:#d32f2f;color:#fff;border:2px solid #fff;border-radius:999px;font:800 11px/18px system-ui,Arial;min-width:22px;height:22px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.45);padding:0 4px;white-space:nowrap}
+.nb.v{background:#2e7d32}.nb.x{background:#0f5a4a;outline:3px solid #ffd54f}
+.kl{background:none;border:0;color:#17302b;font:800 11px system-ui;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap}
+.card{background:#fff;border-radius:14px;padding:12px 13px;margin:8px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.row{display:flex;gap:10px;align-items:center}
+.u{flex:none;min-width:34px;height:34px;border-radius:11px;background:#d32f2f;color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px}
+.u.v{background:#2e7d32}.u.s{background:#90a4ae}
+.t1{font-weight:800;font-size:14px}.t2{font-size:12px;color:#5b6e69;margin-top:2px}
+.pill{display:inline-block;font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 8px;margin:3px 4px 0 0;background:#e6efec;color:#0f5a4a}
+.pill.r{background:#fdecea;color:#b71c1c}.pill.g{background:#e3f4ea;color:#1b5e20}.pill.o{background:#fff3e0;color:#9a5b00}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:11px;padding:11px 12px;font-size:13.5px;font-weight:800;background:#0f5a4a;color:#fff;text-decoration:none}
+.btn.l{background:#e6efec;color:#0f5a4a}.btn.w{width:100%;margin:6px 0}
+.q{width:100%;font-size:16px;padding:11px 12px;border:1.5px solid #b9cbc5;border-radius:12px;background:#fff;margin-bottom:6px}
+.seg{display:flex;gap:6px;margin:6px 0}.seg button{flex:1;border:1px solid #b9cbc5;background:#fff;border-radius:999px;padding:7px 0;font-size:12px;font-weight:700;color:#17302b}.seg button.on{background:#17302b;color:#fff;border-color:#17302b}
+.ket{font-size:12px;color:#5b6e69;margin:4px 2px 8px}
+#lembar{position:absolute;left:0;right:0;bottom:0;z-index:950;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -4px 18px rgba(0,0,0,.25);max-height:78%;overflow:auto;transform:translateY(105%);transition:transform .2s}
+#lembar.on{transform:none}
+#lembar .tutup{position:sticky;top:0;background:#fff;padding:8px 12px 6px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e3ebe8;z-index:2}
+#lembar .tutup b{flex:1;font-size:15px}#lembar .tutup button{border:0;background:#e6efec;border-radius:10px;width:36px;height:36px;font-size:18px}
+#lembar .isi{padding:8px 12px 18px}
+.foto{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.foto div{background:#eef3f1;border-radius:12px;min-height:120px;display:grid;place-items:center;font-size:11px;color:#6b7d78;overflow:hidden;position:relative}
+.foto img{width:100%;height:170px;object-fit:cover;display:block}
+.foto span{position:absolute;left:6px;top:6px;background:#0009;color:#fff;font-size:10px;padding:2px 7px;border-radius:999px}
+dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:6px 0;font-size:12.5px}dt{color:#5b6e69}dd{margin:0;font-weight:600;word-break:break-word}
+h3{font-size:12px;letter-spacing:.4px;color:#0f5a4a;margin:12px 0 4px;text-transform:uppercase}
+.est{background:linear-gradient(135deg,#fff5f3,#fdecea);border:1px solid #f3c9c2;border-radius:12px;padding:9px 11px;margin:6px 0}
+.est b{display:block;font-size:20px;color:#b71c1c}
+.aksi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+#zoom{position:fixed;inset:0;background:#000e;z-index:2000;display:none;align-items:center;justify-content:center}#zoom.on{display:flex}#zoom img{max-width:100%;max-height:100%}
+#login,#pilihTim{position:absolute;inset:0;background:#eef3f1;z-index:1500;overflow:auto;padding:26px 18px;display:none}#login.on,#pilihTim.on{display:block}
+#login h2,#pilihTim h2{color:#0f5a4a;margin:6px 0}
+label.f{display:block;font-size:13px;color:#5b6e69;margin:12px 0 4px}
+input.f{width:100%;font-size:17px;padding:12px;border:1.5px solid #b9cbc5;border-radius:12px;background:#fff}
+#pesan{color:#c62828;font-size:13px;min-height:18px;margin-top:8px;white-space:pre-line}
+.timb{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:#fff;border-radius:14px;padding:14px;margin:8px 0;box-shadow:0 1px 4px rgba(0,0,0,.1);font-size:14px}
+.timb i{width:16px;height:16px;border-radius:50%;flex:none}
+.spark{display:flex;align-items:flex-end;gap:3px;height:46px;margin:6px 0 2px}.spark div{flex:1;background:#7fbfa9;border-radius:3px 3px 0 0;min-height:2px}.spark div.z{background:#e57373}
+.sparkl{display:flex;gap:3px;font-size:9px;color:#6b7d78}.sparkl span{flex:1;text-align:center}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#17302b;color:#fff;padding:9px 14px;border-radius:999px;font-size:13px;z-index:3000;display:none}
+</style></head><body>
+<header>
+ <h1>&#128269; Peta TO HELVETIA <button class="tim" id="bTim">Tim -</button></h1>
+ <small id="hKet">memuat…</small>
+ <nav><button data-v="Peta" class="on">Peta</button><button data-v="Rute">Rute Tim</button><button data-v="Kel">Lokasi Padat</button><button data-v="Info">Info</button></nav>
+</header>
+<main>
+ <section id="vPeta" class="on">
+  <div id="peta"></div>
+  <div class="chipbar"><button id="fBelum" class="on">Belum diperiksa</button><button id="fSemua">+ Sudah diperiksa</button><button id="fLain">Tim lain</button></div>
+  <div class="fab" style="top:10px"><button id="bGps" title="Posisi saya">&#9673;</button><button id="bSat" title="Satelit">&#128752;</button><button id="bTimLuas" title="Wilayah tim">&#9635;</button></div>
+  <div class="leg"><i style="background:#d32f2f"></i>belum diperiksa (no. urut)<br><i style="background:#2e7d32"></i>sudah dikunjungi (di HP ini)<br><i style="background:#7b1fa2"></i>hasil temuan &nbsp;<i style="background:#26a69a"></i>hasil normal</div>
+ </section>
+ <section id="vRute">
+  <div class="aksi" style="margin-top:0"><button class="btn" id="bUrutSaya">&#128205; Urutkan dari posisi saya</button><a class="btn l" id="bGmaps" target="_blank" rel="noopener">&#129517; 4 TO berikutnya</a></div>
+  <div class="ket" id="ruteKet"></div>
+  <input class="q" id="q" placeholder="Cari IDPEL / nomor meter / desa" autocomplete="off">
+  <div class="seg" id="segR"><button data-s="B" class="on">Belum diperiksa</button><button data-s="S">Sudah diperiksa</button><button data-s="A">Semua</button></div>
+  <div id="daftar"></div>
+ </section>
+ <section id="vKel">
+  <div class="ket">Kelompok lokasi dengan TO terbanyak (jarak antar TO &le; 500 m). Tiap kelompok hanya milik satu tim supaya tidak bentrok.</div>
+  <div id="kelDaftar"></div>
+ </section>
+ <section id="vInfo">
+  <div class="card" id="infoData"></div>
+  <button class="btn w" id="bOffline">&#11015; Simpan semua foto tim saya (offline)</button>
+  <div class="ket" id="offKet">Foto juga tersimpan otomatis setiap kali dibuka, jadi bisa dilihat lagi tanpa sinyal.</div>
+  <div class="card" style="font-size:12.5px;line-height:1.55">Tanda <b>sudah dikunjungi</b> hanya tersimpan di HP ini, sebagai pengingat. Hasil pemeriksaan tetap diinput di BARAKUDA &rarr; Hit n Rate. Nama dan alamat pelanggan disamarkan.</div>
+  <button class="btn w l" id="bGantiTim">Ganti tim</button>
+  <button class="btn w" style="background:#c62828" id="bKeluar">Keluar</button>
+  <div class="ket" style="text-align:center">Peta TO &middot; BARAKUDA</div>
+ </section>
+ <div id="lembar"><div class="tutup"><b id="lJudul">TO</b><button id="lTutup">&#10005;</button></div><div class="isi" id="lIsi"></div></div>
+ <div id="login">
+  <h2>Peta TO HELVETIA</h2>
+  <div class="ket">Masuk dengan akun Peta Baca ULP. Data di link ini terkunci.</div>
+  <label class="f">User</label><input id="lUser" class="f" autocomplete="username" autocapitalize="none" value="biller.helvetia">
+  <label class="f">Sandi</label><input id="lPass" class="f" type="password" autocomplete="current-password">
+  <button class="btn w" id="bMasuk" style="margin-top:16px">Masuk</button>
+  <div id="pesan"></div>
+ </div>
+ <div id="pilihTim"><h2>Pilih tim Anda</h2><div class="ket">Setiap tim mendapat wilayah sendiri. Pilih sesuai pembagian dari TL.</div><div id="timDaftar"></div></div>
+</main>
+<div id="zoom"><img id="zImg" alt=""></div>
+<div id="toast"></div>
+<script src="../../lib/leaflet.js"></script>
+<script>
+/* Peta TO (BARAKUDA, 22 Okt 2026). Data & foto terenkripsi; dibuka dengan akun Peta Baca. */
+var $=function(i){return document.getElementById(i)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var TW=['#1565C0','#6A1B9A','#EF6C00','#00838F','#6D4C41'];
+var KAT={NORMAL:'beli token normal',BERHENTI_BELI:'berhenti beli token',TREN_TURUN:'pembelian token turun',FLUKTUASI:'pembelian token naik-turun',DATA_KURANG:'data token kurang'};
+var HS={BELUM:'Belum diperiksa',TEMUAN:'Hasil temuan',NORMAL:'Hasil normal'};
+var KUNCI='petato:'+location.pathname, D=null, K=null, TIM=0, peta=null, lapis=null, lapisK=null, gpsM=null, POS=null, sat=false, dasar=null, satL=null;
+var F={belum:true,semua:false,lain:false}, segR='B', URUT=null, PAK={}, MK={};
+var te=new TextEncoder();
+if(location.protocol=='https:'&&'serviceWorker' in navigator){try{navigator.serviceWorker.register(new URL('../../sw.js',location.href).href).catch(function(){})}catch(e){}}
+function toast(t){var x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){x.style.display='none'},2200)}
+function simpan(k,v){try{localStorage.setItem(KUNCI+k,JSON.stringify(v))}catch(e){}}
+function ambil(k,d){try{var v=localStorage.getItem(KUNCI+k);return v?JSON.parse(v):d}catch(e){return d}}
+var VIS=ambil(':v',{});
+function b64d(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+function sha16(s){return crypto.subtle.digest('SHA-256',te.encode(String(s).trim().toUpperCase())).then(function(d){return Array.prototype.map.call(new Uint8Array(d).slice(0,8),function(b){return b.toString(16).padStart(2,'0')}).join('')})}
+function kek(u,p,salt){return crypto.subtle.importKey('raw',te.encode(String(u).trim().toUpperCase()+'\n'+String(p)),'PBKDF2',false,['deriveKey']).then(function(km){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:150000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt'])})}
+async function bukaKunci(paket,u,p){var h=await sha16(u);var cal=paket.pengguna.filter(function(x){return x.h==h});
+ for(var i=0;i<cal.length;i++){try{var k=await kek(u,p,b64d(cal[i].s));return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(cal[i].i)},k,b64d(cal[i].w)))}catch(e){}}return null}
+async function dekrip(raw,iv,ct){var k=await crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},false,['decrypt']);return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct))}
+async function bukaData(paket,raw){var pt=await dekrip(raw,b64d(paket.iv),b64d(paket.data));
+ if(paket.z){var s=new Blob([pt]).stream().pipeThrough(new DecompressionStream('deflate'));pt=new Uint8Array(await new Response(s).arrayBuffer())}
+ return JSON.parse(new TextDecoder().decode(pt))}
+async function ambilPaket(){var r=await fetch('./paket.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('paket '+r.status);return r.json()}
+var PAKET=null;
+async function mulai(){
+ if(!window.crypto||!crypto.subtle){$('login').classList.add('on');$('pesan').textContent='Buka link ini dengan Chrome (https).';return}
+ try{PAKET=await ambilPaket()}catch(e){$('login').classList.add('on');$('pesan').textContent='Data belum bisa diambil (periksa sinyal). '+(e.message||e);return}
+ var c=ambil(':c',null);
+ if(c){var raw=await bukaKunci(PAKET,c.u,c.p);if(raw){return siap(raw)}}
+ $('login').classList.add('on')}
+$('bMasuk').onclick=async function(){var u=$('lUser').value.trim(),p=$('lPass').value;$('pesan').textContent='memeriksa…';
+ if(!PAKET){try{PAKET=await ambilPaket()}catch(e){$('pesan').textContent='Data belum bisa diambil: '+(e.message||e);return}}
+ var raw=await bukaKunci(PAKET,u,p);if(!raw){$('pesan').textContent='User atau sandi salah.';return}
+ simpan(':c',{u:u,p:p});$('login').classList.remove('on');$('pesan').textContent='';siap(raw)};
+$('lPass').addEventListener('keydown',function(e){if(e.key=='Enter')$('bMasuk').click()});
+async function siap(raw){K=raw;try{D=await bukaData(PAKET,raw)}catch(e){$('login').classList.add('on');$('pesan').textContent='Data rusak: '+(e.message||e);return}
+ D.to.forEach(function(t){t.k=t.k||'K00'});
+ var m=/tim=(\d)/.exec(location.hash||'');var t=m?+m[1]:ambil(':tim',0);
+ if(D.tim<=1)t=1; if(t>=1&&t<=D.tim){pakaiTim(t)}else{tampilPilihTim()}}
+function tampilPilihTim(){var h='';D.tims.forEach(function(x){h+='<button class="timb" data-t="'+x.no+'"><i style="background:'+TW[(x.no-1)%5]+'"></i><div><b>Tim '+x.no+'</b><div class="t2">'+x.b+' TO belum diperiksa &middot; '+x.n+' TO &middot; '+x.k+' lokasi</div></div></button>'});
+ $('timDaftar').innerHTML=h;$('pilihTim').classList.add('on');
+ Array.prototype.forEach.call(document.querySelectorAll('.timb'),function(b){b.onclick=function(){$('pilihTim').classList.remove('on');pakaiTim(+b.dataset.t)}})}
+$('bTim').onclick=function(){if(D&&D.tim>1)tampilPilihTim()};$('bGantiTim').onclick=function(){if(D&&D.tim>1)tampilPilihTim();else toast('Hanya satu tim di ULP ini')};
+$('bKeluar').onclick=function(){try{localStorage.removeItem(KUNCI+':c')}catch(e){}location.reload()};
+function milik(){return D.to.filter(function(t){return t.tm==TIM})}
+function pakaiTim(t){TIM=t;simpan(':tim',t);URUT=null;var x=D.tims[t-1]||{b:0,n:0,k:0};
+ if(!x.b&&x.n){F.semua=true;segR='A';Array.prototype.forEach.call(document.querySelectorAll('#segR button'),function(q){q.classList.toggle('on',q.dataset.s=='A')});toast('Semua TO tim ini sudah diperiksa - ditampilkan hasilnya')}tombolF();
+ $('bTim').textContent='Tim '+t+(D.tim>1?' ▾':'');$('bTim').style.background='#fff';$('bTim').style.color=TW[(t-1)%5];
+ $('hKet').textContent=x.b+' TO belum diperiksa · '+x.k+' lokasi · data '+D.stempel;
+ $('infoData').innerHTML='<b>'+esc(D.ulp)+'</b> &middot; Tim '+t+' dari '+D.tim+'<br>TO tim: '+x.n+' ('+x.b+' belum diperiksa)<br>Seluruh ULP: '+D.to.length+' TO, '+D.kel.length+' lokasi<br>Disusun '+esc(D.stempel)+(D.oleh?' oleh '+esc(D.oleh):'')+'<br><span class="t2">Sumber: '+((D.sumber||['hitrate']).map(function(s){return {aiscan:'TO kWh belum disahkan (AI Meter Scan)',house:'TO rumah belum disahkan (AI House Scan)',hit_kwh:'TO kWh disahkan (Hit n Rate)',hit_rumah:'TO rumah disahkan (Hit n Rate)',prepaid:'TO Prepaid Analysis',pindah:'TO Meter Pindah'}[s]||'TO P2TL Hit n Rate'}).join(' + '))+(D.blth?' · periode '+esc(D.blth):'')+'</span>';
+ gambar();isiRute();isiKel();keWilayah()}
+/* ---------- peta ---------- */
+function bikinPeta(){if(peta)return;peta=L.map('peta',{zoomControl:false,attributionControl:true}).setView([2.9,99.1],11);
+ dasar=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(peta);
+ satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri'});
+ lapisK=L.layerGroup().addTo(peta);lapis=L.layerGroup().addTo(peta)}
+function warnaTitik(t){if(VIS[t.ip])return'#2e7d32';if(t.st=='B')return'#d32f2f';return t.st=='T'?'#7b1fa2':'#26a69a'}
+function gambar(){bikinPeta();lapis.clearLayers();lapisK.clearLayers();MK={};
+ D.kel.forEach(function(k){var sy=k.tim==TIM;if(!sy&&!F.lain)return;if(k.n<2)return;
+  L.circle([k.lat,k.lon],{radius:k.rad,color:TW[(k.tim-1)%5],weight:sy?2.5:1.2,dashArray:sy?null:'5 5',fillOpacity:sy?.09:.04}).addTo(lapisK)
+   .on('click',function(){bukaKel(k)});
+  if(k.n>=3)L.marker([k.lat,k.lon],{interactive:false,icon:L.divIcon({className:'kl',html:esc(k.id+' '+(D.tim>1&&!sy?'(Tim '+k.tim+')':'')),iconSize:[80,14],iconAnchor:[40,-14]})}).addTo(lapisK)});
+ D.to.forEach(function(t){if(t.lat==null)return;var sy=t.tm==TIM;
+  if(!sy){if(!F.lain)return;L.circleMarker([t.lat,t.lon],{radius:4,color:TW[(t.tm-1)%5],weight:1.5,fillColor:'#fff',fillOpacity:.9}).addTo(lapis).on('click',function(){kartu(t)});return}
+  if(t.st=='B'&&!VIS[t.ip]){if(!F.belum&&!F.semua)return;
+   var m=L.marker([t.lat,t.lon],{icon:L.divIcon({className:'',html:'<div class="nb">'+(t.u||'•')+'</div>',iconSize:[24,22],iconAnchor:[12,11]})}).addTo(lapis).on('click',function(){kartu(t)});MK[t.ip]=m;return}
+  if(t.st=='B'&&VIS[t.ip]){var m2=L.marker([t.lat,t.lon],{icon:L.divIcon({className:'',html:'<div class="nb v">&#10003;'+(t.u||'')+'</div>',iconSize:[30,22],iconAnchor:[15,11]})}).addTo(lapis).on('click',function(){kartu(t)});MK[t.ip]=m2;return}
+  if(!F.semua)return;
+  L.circleMarker([t.lat,t.lon],{radius:6,color:'#fff',weight:2,fillColor:warnaTitik(t),fillOpacity:1}).addTo(lapis).on('click',function(){kartu(t)})})}
+function keWilayah(){var b=[];milik().forEach(function(t){if(t.lat!=null)b.push([t.lat,t.lon])});
+ if(!b.length)D.to.forEach(function(t){if(t.lat!=null)b.push([t.lat,t.lon])});
+ if(b.length)peta.fitBounds(b,{padding:[40,40],maxZoom:16})}
+function tombolF(){$('fBelum').classList.toggle('on',F.belum);$('fSemua').classList.toggle('on',F.semua);$('fLain').classList.toggle('on',F.lain)}
+$('fBelum').onclick=function(){F.belum=!F.belum;tombolF();gambar()};
+$('fSemua').onclick=function(){F.semua=!F.semua;tombolF();gambar()};
+$('fLain').onclick=function(){F.lain=!F.lain;tombolF();gambar();if(F.lain)toast('Garis putus-putus = wilayah tim lain')};
+$('bTimLuas').onclick=keWilayah;
+$('bSat').onclick=function(){sat=!sat;$('bSat').classList.toggle('on',sat);if(sat){peta.removeLayer(dasar);satL.addTo(peta)}else{peta.removeLayer(satL);dasar.addTo(peta)}};
+function mulaiGps(cb){if(!navigator.geolocation){toast('GPS tidak tersedia');return}
+ navigator.geolocation.getCurrentPosition(function(p){POS=[p.coords.latitude,p.coords.longitude];taruhGps();cb&&cb()},function(){toast('Nyalakan GPS & izinkan lokasi')},{enableHighAccuracy:true,timeout:15000,maximumAge:20000});
+ if(!mulaiGps.w){mulaiGps.w=navigator.geolocation.watchPosition(function(p){POS=[p.coords.latitude,p.coords.longitude];taruhGps()},function(){},{enableHighAccuracy:true,maximumAge:15000})}}
+function taruhGps(){if(!peta||!POS)return;if(!gpsM){gpsM=L.circleMarker(POS,{radius:8,color:'#fff',weight:3,fillColor:'#1a73e8',fillOpacity:1}).addTo(peta)}else gpsM.setLatLng(POS)}
+$('bGps').onclick=function(){mulaiGps(function(){peta.setView(POS,Math.max(peta.getZoom(),16))})};
+/* ---------- jarak & rute ---------- */
+function km(a,b){var r=Math.PI/180,x=(b[1]-a[1])*r*Math.cos((a[0]+b[0])*r/2),y=(b[0]-a[0])*r;return 6371*Math.hypot(x,y)}
+function jarakT(t){if(!POS||t.lat==null)return'';var d=km(POS,[t.lat,t.lon]);return d<1?Math.round(d*1000)+' m':d.toFixed(1)+' km'}
+function sisaBelum(){return milik().filter(function(t){return t.st=='B'&&!VIS[t.ip]})}
+function urutan(){var s=sisaBelum();if(URUT){var ada={};s.forEach(function(t){ada[t.ip]=t});var o=URUT.filter(function(ip){return ada[ip]}).map(function(ip){return ada[ip]});s.forEach(function(t){if(o.indexOf(t)<0)o.push(t)});return o}
+ return s.sort(function(a,b){return (a.u||9999)-(b.u||9999)})}
+$('bUrutSaya').onclick=function(){mulaiGps(function(){var s=sisaBelum().filter(function(t){return t.lat!=null}),o=[],p=POS;
+ while(s.length){var j=0,bd=1e9;for(var i=0;i<s.length;i++){var d=km(p,[s[i].lat,s[i].lon]);if(d<bd){bd=d;j=i}}var t=s.splice(j,1)[0];o.push(t.ip);p=[t.lat,t.lon]}
+ URUT=o;isiRute();toast('Diurutkan dari posisi Anda')})};
+function gmapsUrl(){var o=urutan().filter(function(t){return t.lat!=null}).slice(0,4);if(!o.length)return null;
+ var u='https://www.google.com/maps/dir/?api=1&travelmode=driving&destination='+o[o.length-1].lat+','+o[o.length-1].lon;
+ if(POS)u+='&origin='+POS[0]+','+POS[1];if(o.length>1)u+='&waypoints='+o.slice(0,-1).map(function(t){return t.lat+','+t.lon}).join('%7C');return u}
+function chips(t){var h='';if(t.j.kwh)h+='<span class="pill">TO kWh</span>';if(t.j.rumah)h+='<span class="pill">TO Rumah</span>';if(t.j.prepaid)h+='<span class="pill">TO Prepaid</span>';if(t.j.alamat)h+='<span class="pill">Meter pindah</span>';if(t.ks)h+='<span class="pill o">kandidat AI · belum disahkan</span>';
+ if(t.st=='T')h+='<span class="pill r">Temuan</span>';else if(t.st=='N')h+='<span class="pill g">Normal</span>';
+ if(t.pa&&t.pa.kat&&t.pa.kat!='NORMAL'&&t.pa.kat!='DATA_KURANG')h+='<span class="pill o">'+esc(KAT[t.pa.kat]||t.pa.kat)+'</span>';
+ if(t.lat==null)h+='<span class="pill r">tanpa koordinat</span>';return h}
+function baris(t){var cls=VIS[t.ip]?'v':(t.st=='B'?'':'s');var no=t.st=='B'?(t.u||'•'):(t.st=='T'?'T':'N');
+ return '<div class="card" data-ip="'+t.ip+'"><div class="row"><div class="u '+cls+'">'+(VIS[t.ip]?'&#10003;':no)+'</div><div style="flex:1;min-width:0"><div class="t1">'+esc(t.ip)+(t.nm?' <span class="t2">· '+esc(t.nm)+'</span>':'')+'</div><div class="t2">'+esc(t.ds||'-')+(t.kc?', '+esc(t.kc):'')+' · '+esc(t.k)+'</div><div>'+chips(t)+'</div></div><div class="t2" style="white-space:nowrap">'+jarakT(t)+'</div></div></div>'}
+function isiRute(){var q=$('q').value.trim().toLowerCase(),xs;
+ if(segR=='B')xs=urutan();else{xs=milik().filter(function(t){return segR=='A'||t.st!='B'})}
+ if(segR=='A'){var o=urutan();xs=o.concat(milik().filter(function(t){return o.indexOf(t)<0}))}
+ if(q)xs=xs.filter(function(t){return (t.ip+' '+(t.nm||'')+' '+(t.ds||'')+' '+(t.kc||'')).toLowerCase().indexOf(q)>=0});
+ var n=sisaBelum().length;$('ruteKet').textContent=n+' TO belum diperiksa tersisa untuk Tim '+TIM+(URUT?' (urutan dari posisi Anda)':' (urutan kunjungan terdekat antar lokasi)');
+ var h=xs.slice(0,400).map(baris).join('');$('daftar').innerHTML=h||'<div class="ket" style="text-align:center;margin-top:30px">Tidak ada TO.</div>';
+ Array.prototype.forEach.call($('daftar').children,function(e){if(e.dataset.ip)e.onclick=function(){var t=cari(e.dataset.ip);kartu(t)}});
+ var g=gmapsUrl();$('bGmaps').href=g||'#';$('bGmaps').style.opacity=g?1:.5}
+$('q').oninput=isiRute;
+Array.prototype.forEach.call(document.querySelectorAll('#segR button'),function(b){b.onclick=function(){segR=b.dataset.s;Array.prototype.forEach.call(document.querySelectorAll('#segR button'),function(x){x.classList.toggle('on',x==b)});isiRute()}});
+function cari(ip){for(var i=0;i<D.to.length;i++)if(D.to[i].ip==ip)return D.to[i];return null}
+function isiKel(){var ks=D.kel.slice().sort(function(a,b){return (b.tim==TIM)-(a.tim==TIM)||b.b-a.b||b.n-a.n});
+ $('kelDaftar').innerHTML=ks.map(function(k){var sy=k.tim==TIM;return '<div class="card" data-k="'+k.id+'" style="border-left:5px solid '+TW[(k.tim-1)%5]+';'+(sy?'':'opacity:.6')+'"><div class="row"><div class="u" style="background:'+TW[(k.tim-1)%5]+'">'+k.b+'</div><div style="flex:1"><div class="t1">'+esc(k.id)+' · '+esc(k.nama)+'</div><div class="t2">'+k.b+' belum diperiksa dari '+k.n+' TO · radius '+k.rad+' m · '+(D.tim>1?'<b style="color:'+TW[(k.tim-1)%5]+'">Tim '+k.tim+(sy?' (tim Anda)':'')+'</b> · ':'')+'urutan ke-'+k.urut+'</div></div></div></div>'}).join('');
+ Array.prototype.forEach.call($('kelDaftar').children,function(e){e.onclick=function(){var k=D.kel.filter(function(x){return x.id==e.dataset.k})[0];bukaKel(k)}})}
+function bukaKel(k){tab('Peta');if(k.tim!=TIM&&!F.lain){F.lain=true;tombolF();gambar()}peta.fitBounds(L.latLng(k.lat,k.lon).toBounds(k.rad*2.2),{maxZoom:18});var x=D.to.filter(function(t){return t.k==k.id&&t.pk})[0];if(x)ambilPak(x.pk).catch(function(){})}
+/* ---------- foto ---------- */
+function ambilPak(kid){if(PAK[kid])return PAK[kid];PAK[kid]=fetch('./f/'+kid+'.bin').then(function(r){if(!r.ok)throw new Error('foto '+r.status);return r.arrayBuffer()}).then(function(b){var u=new Uint8Array(b);return dekrip(K,u.slice(0,12),u.slice(12))}).then(function(pt){return JSON.parse(new TextDecoder().decode(pt))}).catch(function(e){delete PAK[kid];throw e});return PAK[kid]}
+function isiFoto(t){var el=$('fotoBox');if(!el)return;if(!t.f){el.innerHTML='<div>tidak ada foto kWh</div><div>tidak ada foto rumah</div>';return}
+ ambilPak(t.pk||t.k).then(function(p){var x=p[t.ip]||{};if(!$('fotoBox')||$('fotoBox').dataset.ip!=t.ip)return;
+  $('fotoBox').innerHTML=[['k','Foto kWh'],['r','Foto rumah']].map(function(a){return x[a[0]]?'<div><img src="data:image/jpeg;base64,'+x[a[0]]+'" data-z="1"><span>'+a[1]+'</span></div>':'<div>tidak ada '+a[1].toLowerCase()+'</div>'}).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('#fotoBox img'),function(i){i.onclick=function(){$('zImg').src=i.src;$('zoom').classList.add('on')}})})
+ .catch(function(){if($('fotoBox'))$('fotoBox').innerHTML='<div>foto belum bisa dimuat (sinyal)</div><div></div>'})}
+$('zoom').onclick=function(){$('zoom').classList.remove('on')};
+/* ---------- kartu TO ---------- */
+function rp(v){return v==null?'-':'Rp '+Math.round(v).toLocaleString('id-ID')}
+function bln(b){var n=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];b=String(b||'');return b.length==6?n[(+b.slice(4))-1]+' '+b.slice(2,4):b}
+function blokJ(nama,d){if(!d)return'';var h='<h3>'+nama+'</h3><dl><dt>Status</dt><dd>'+esc(d.ks?'Kandidat AI, belum disahkan':(HS[d.h]||d.h))+'</dd><dt>Kriteria</dt><dd>'+esc(d.kr||'-')+'</dd>'+(d.kd?'<dt>Kondisi AI</dt><dd>'+esc(d.kd)+'</dd>':'')+'<dt>Periode (blth)</dt><dd>'+esc(d.pr||'-')+'</dd>';
+ if(d.h!='BELUM')h+='<dt>Diperiksa</dt><dd>'+esc(d.tg||'-')+(d.ol?' · '+esc(d.ol):'')+'</dd>';
+ if(d.h=='TEMUAN')h+='<dt>Golongan</dt><dd>'+esc(d.gol||'-')+'</dd><dt>kWh temuan</dt><dd>'+(d.kw!=null?Math.round(d.kw).toLocaleString('id-ID')+' kWh':'-')+'</dd><dt>Tagihan</dt><dd>'+rp(d.rp)+'</dd>';
+ if(d.ct)h+='<dt>Catatan</dt><dd>'+esc(d.ct)+'</dd>';return h+'</dl>'}
+function blokPA(pa){if(!pa)return'<h3>Analisa beli token</h3><div class="t2">Tidak ada riwayat beli token (pascabayar atau di luar data PPOB).</div>';
+ var h='<h3>Analisa beli token</h3><div><span class="pill '+(pa.kat=='NORMAL'?'g':'o')+'">'+esc(KAT[pa.kat]||pa.kat)+'</span></div>';
+ if(pa.est>0&&pa.kat!='NORMAL')h+='<div class="est"><span class="t2">Estimasi kehilangan</span><b>'+rp(pa.est)+'</b></div>';
+ if(pa.bl&&pa.bl.length){var mx=Math.max.apply(null,pa.bl.map(function(x){return x[1]}))||1;
+  h+='<div class="spark">'+pa.bl.map(function(x){return '<div class="'+(x[1]>0?'':'z')+'" style="height:'+Math.max(4,Math.round(x[1]/mx*100))+'%" title="'+x[1]+' kWh"></div>'}).join('')+'</div><div class="sparkl">'+pa.bl.map(function(x){return '<span>'+bln(x[0]).split(' ')[0]+'</span>'}).join('')+'</div><div class="t2">kWh token dibeli per bulan (merah = tidak beli)</div>'}
+ return h}
+var AKTIF=null;
+function kartu(t){if(!t)return;AKTIF=t;var sy=t.tm==TIM;
+ $('lJudul').innerHTML=(t.st=='B'?'#'+(t.u||'-')+' ':'')+esc(t.ip)+(sy?'':' <span class="pill" style="background:'+TW[(t.tm-1)%5]+';color:#fff">Tim '+t.tm+'</span>');
+ var nav=t.lat!=null?'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination='+t.lat+','+t.lon:null;
+ var h='<div>'+chips(t)+(VIS[t.ip]?'<span class="pill g">sudah dikunjungi '+esc(VIS[t.ip])+'</span>':'')+'</div>'+
+  '<div class="foto" id="fotoBox" data-ip="'+t.ip+'"><div>memuat foto…</div><div>memuat foto…</div></div>'+
+  '<div class="aksi">'+(nav?'<a class="btn" href="'+nav+'" target="_blank" rel="noopener">&#129517; Navigasi</a>':'<span class="btn l">tanpa koordinat</span>')+
+  (sy&&t.st=='B'?'<button class="btn l" id="bVis">'+(VIS[t.ip]?'Batal tanda':'&#10003; Sudah dikunjungi')+'</button>':'<button class="btn l" id="bSalin">Salin IDPEL</button>')+'</div>'+
+  blokJ('TO kWh (AI Meter Scan)',t.j.kwh)+blokJ('TO Rumah (AI House Scan)',t.j.rumah)+blokJ('TO Prepaid Analysis',t.j.prepaid)+blokJ('TO Meter Pindah (Analisa Pindah Alamat)',t.j.alamat)+blokPA(t.pa)+
+  '<h3>Pelanggan</h3><dl><dt>IDPEL</dt><dd>'+esc(t.ip)+'</dd><dt>No meter</dt><dd>'+esc(t.nm||'-')+'</dd><dt>Nama</dt><dd>'+esc(t.na||'-')+'</dd><dt>Alamat</dt><dd>'+esc(t.al||'-')+'</dd><dt>Desa</dt><dd>'+esc(t.ds||'-')+'</dd><dt>Kecamatan</dt><dd>'+esc(t.kc||'-')+'</dd><dt>Tarif/Daya</dt><dd>'+esc(t.td||'-')+'</dd><dt>Lokasi</dt><dd>'+esc(t.k)+' · '+esc(t.sb||'-')+(POS&&t.lat!=null?' · '+jarakT(t)+' dari Anda':'')+'</dd></dl>'+
+  (sy&&t.st=='B'?'<button class="btn w" id="bLanjut">TO berikutnya &#9654;</button>':'');
+ $('lIsi').innerHTML=h;$('lembar').classList.add('on');$('lembar').scrollTop=0;isiFoto(t);
+ if(t.lat!=null&&$('vPeta').classList.contains('on'))peta.panTo([t.lat,t.lon]);
+ if($('bVis'))$('bVis').onclick=function(){if(VIS[t.ip])delete VIS[t.ip];else{var d=new Date();VIS[t.ip]=d.getDate()+'/'+(d.getMonth()+1)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}simpan(':v',VIS);gambar();isiRute();kartu(t)};
+ if($('bSalin'))$('bSalin').onclick=function(){try{navigator.clipboard.writeText(t.ip);toast('IDPEL disalin')}catch(e){}};
+ if($('bLanjut'))$('bLanjut').onclick=function(){var o=urutan().filter(function(x){return x!==t});if(!o.length){toast('Semua TO tim sudah dikunjungi');return}
+  var i=URUT?0:o.findIndex(function(x){return (x.u||0)>(t.u||0)});kartu(o[i>=0?i:0])}}
+$('lTutup').onclick=function(){$('lembar').classList.remove('on')};
+/* ---------- tab & offline ---------- */
+function tab(v){Array.prototype.forEach.call(document.querySelectorAll('nav button'),function(b){b.classList.toggle('on',b.dataset.v==v)});
+ Array.prototype.forEach.call(document.querySelectorAll('section'),function(s){s.classList.toggle('on',s.id=='v'+v)});if(v=='Peta'&&peta)setTimeout(function(){peta.invalidateSize()},50);if(v=='Rute')isiRute()}
+Array.prototype.forEach.call(document.querySelectorAll('nav button'),function(b){b.onclick=function(){tab(b.dataset.v)}});
+$('bOffline').onclick=async function(){var ks={};milik().forEach(function(t){if(t.f)ks[t.pk||t.k]=1});ks=Object.keys(ks);var ok=0;
+ for(var i=0;i<ks.length;i++){$('offKet').textContent='Menyimpan foto '+(i+1)+'/'+ks.length+'…';try{await ambilPak(ks[i]);ok++}catch(e){}}
+ $('offKet').textContent=ok==ks.length?'Selesai: foto '+ks.length+' lokasi tersimpan di HP ini.':'Tersimpan '+ok+'/'+ks.length+' lokasi; ulangi saat sinyal bagus.'};
+mulai();
+</script></body></html>
