@@ -171,7 +171,7 @@ function pakaiTim(t){TIM=t;simpan(':tim',t);URUT=null;var x=D.tims[t-1]||{b:0,n:
 /* ---------- peta ---------- */
 function bikinPeta(){if(peta)return;peta=L.map('peta',{zoomControl:false,attributionControl:true}).setView([2.9,99.1],11);
  dasar=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(peta);
- satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri'});
+ satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,maxNativeZoom:18,attribution:'Esri'});
  lapisK=L.layerGroup().addTo(peta);lapis=L.layerGroup().addTo(peta)}
 function warnaTitik(t){if(VIS[t.ip])return'#2e7d32';if(t.st=='B')return'#d32f2f';return t.st=='T'?'#7b1fa2':'#26a69a'}
 function gambar(){bikinPeta();lapis.clearLayers();lapisK.clearLayers();MK={};
@@ -356,8 +356,8 @@ function kartuNP(t){AKTIF=t;var sy=t.tm==TIM,n=t.np||{},d=t.j.np||{};
   '<div class="t2" style="margin:6px 0">Yang dicek: bangunan dihuni / dipakai usaha? listrik dari mana (tarikan dari tiang, dari rumah tetangga, atau meter sendiri)? Bila ternyata pelanggan, catat IDPEL-nya.</div>'+
   (sy&&t.st=='B'?'<button class="btn w" id="bLanjut">TO berikutnya &#9654;</button>':'');
  $('lIsi').innerHTML=h;$('lembar').classList.add('on');$('lembar').scrollTop=0;isiFotoNP(t);pasangLap(t);
- setTimeout(function(){try{if(miniP){miniP.remove();miniP=null}miniP=L.map('miniSat',{zoomControl:true,attributionControl:false}).setView([t.lat,t.lon],19);
-  L.tileLayer(SATU,{maxZoom:20,maxNativeZoom:19}).addTo(miniP);
+ setTimeout(function(){try{if(miniP){miniP.remove();miniP=null}miniP=L.map('miniSat',{zoomControl:true,attributionControl:false}).setView([t.lat,t.lon],18);/*PATCH430b*/
+  L.tileLayer(SATU,{maxZoom:20,maxNativeZoom:18}).addTo(miniP);
   L.circle([t.lat,t.lon],{radius:Math.max(7,Math.sqrt((+n.ls||60)/Math.PI)+4),color:'#ff1744',weight:3,fill:false}).addTo(miniP)}catch(e){}},80);
  if($('vPeta').classList.contains('on'))peta.panTo([t.lat,t.lon]);
  if($('bVis'))$('bVis').onclick=function(){if(VIS[t.ip])delete VIS[t.ip];else{var q=new Date();VIS[t.ip]=q.getDate()+'/'+(q.getMonth()+1)+' '+String(q.getHours()).padStart(2,'0')+':'+String(q.getMinutes()).padStart(2,'0')}simpan(':v',VIS);gambar();isiRute();kartu(t)};
