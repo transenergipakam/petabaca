@@ -65,8 +65,9 @@ input.f{width:100%;font-size:17px;padding:12px;border:1.5px solid #b9cbc5;border
 .timb i{width:16px;height:16px;border-radius:50%;flex:none}
 .spark{display:flex;align-items:flex-end;gap:3px;height:46px;margin:6px 0 2px}.spark div{flex:1;background:#7fbfa9;border-radius:3px 3px 0 0;min-height:2px}.spark div.z{background:#e57373}
 .sparkl{display:flex;gap:3px;font-size:9px;color:#6b7d78}.sparkl span{flex:1;text-align:center}
+.lap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}.lap button{border:0;border-radius:11px;padding:11px 4px;font-size:12.5px;font-weight:800;color:#fff}
 #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#17302b;color:#fff;padding:9px 14px;border-radius:999px;font-size:13px;z-index:3000;display:none}
-</style></head><body>
+</style><!-- PATCH429 --></head><body>
 <header>
  <h1>&#128269; Peta TO SIMPANG KAWAT <button class="tim" id="bTim">Tim -</button></h1>
  <small id="hKet">memuat…</small>
@@ -76,11 +77,12 @@ input.f{width:100%;font-size:17px;padding:12px;border:1.5px solid #b9cbc5;border
  <section id="vPeta" class="on">
   <div id="peta"></div>
   <div class="chipbar"><button id="fBelum" class="on">Belum diperiksa</button><button id="fSemua">+ Sudah diperiksa</button><button id="fLain">Tim lain</button></div>
-  <div class="fab" style="top:10px"><button id="bGps" title="Posisi saya">&#9673;</button><button id="bSat" title="Satelit">&#128752;</button><button id="bTimLuas" title="Wilayah tim">&#9635;</button></div>
+  <div class="fab" style="top:10px"><button id="bGps" title="Posisi saya">&#9673;</button><button id="bSat" title="Satelit">&#128752;</button><button id="bTimLuas" title="Wilayah tim">&#9635;</button><button id="bLapP" title="Laporan hari ini" style="background:#ef6c00;color:#fff">&#128228;</button></div>
   <div class="leg"><i style="background:#d32f2f"></i>belum diperiksa (no. urut)<br><i style="background:#2e7d32"></i>sudah dikunjungi (di HP ini)<br><i style="background:#7b1fa2"></i>hasil temuan &nbsp;<i style="background:#26a69a"></i>hasil normal</div>
  </section>
  <section id="vRute">
   <div class="aksi" style="margin-top:0"><button class="btn" id="bUrutSaya">&#128205; Urutkan dari posisi saya</button><a class="btn l" id="bGmaps" target="_blank" rel="noopener">&#129517; 4 TO berikutnya</a></div>
+  <button class="btn w" id="bLapR" style="background:#ef6c00">&#128228; Laporan hari ini (kirim ke TL)</button>
   <div class="ket" id="ruteKet"></div>
   <input class="q" id="q" placeholder="Cari IDPEL / nomor meter / desa" autocomplete="off">
   <div class="seg" id="segR"><button data-s="B" class="on">Belum diperiksa</button><button data-s="S">Sudah diperiksa</button><button data-s="A">Semua</button></div>
@@ -94,7 +96,7 @@ input.f{width:100%;font-size:17px;padding:12px;border:1.5px solid #b9cbc5;border
   <div class="card" id="infoData"></div>
   <button class="btn w" id="bOffline">&#11015; Simpan semua foto tim saya (offline)</button>
   <div class="ket" id="offKet">Foto juga tersimpan otomatis setiap kali dibuka, jadi bisa dilihat lagi tanpa sinyal.</div>
-  <div class="card" style="font-size:12.5px;line-height:1.55">Tanda <b>sudah dikunjungi</b> hanya tersimpan di HP ini, sebagai pengingat. Hasil pemeriksaan tetap diinput di BARAKUDA &rarr; Hit n Rate. Nama dan alamat pelanggan disamarkan.</div>
+  <div class="card" style="font-size:12.5px;line-height:1.55">Di kartu TO pilih <b>Temuan / Normal / Ganti kWh</b> (titik GPS diambil otomatis), lalu kirim <b>Laporan hari ini</b> lewat WA ke TL. Setelah TL menempelkannya di BARAKUDA, status TO terlihat oleh semua petugas yang membuka link ini. Nama dan alamat pelanggan disamarkan.</div>
   <button class="btn w l" id="bGantiTim">Ganti tim</button>
   <button class="btn w" style="background:#c62828" id="bKeluar">Keluar</button>
   <div class="ket" style="text-align:center">Peta TO &middot; BARAKUDA</div>
@@ -153,7 +155,7 @@ $('lPass').addEventListener('keydown',function(e){if(e.key=='Enter')$('bMasuk').
 async function siap(raw){K=raw;try{D=await bukaData(PAKET,raw)}catch(e){$('login').classList.add('on');$('pesan').textContent='Data rusak: '+(e.message||e);return}
  D.to.forEach(function(t){t.k=t.k||'K00'});
  var m=/tim=(\d)/.exec(location.hash||'');var t=m?+m[1]:ambil(':tim',0);
- if(D.tim<=1)t=1; if(t>=1&&t<=D.tim){pakaiTim(t)}else{tampilPilihTim()}}
+ if(D.tim<=1)t=1; if(t>=1&&t<=D.tim){pakaiTim(t)}else{tampilPilihTim()}muatStatus();if(!siap.iv)siap.iv=setInterval(muatStatus,180000)}
 function tampilPilihTim(){var h='';D.tims.forEach(function(x){h+='<button class="timb" data-t="'+x.no+'"><i style="background:'+TW[(x.no-1)%5]+'"></i><div><b>Tim '+x.no+'</b><div class="t2">'+x.b+' TO belum diperiksa &middot; '+x.n+' TO &middot; '+x.k+' lokasi</div></div></button>'});
  $('timDaftar').innerHTML=h;$('pilihTim').classList.add('on');
  Array.prototype.forEach.call(document.querySelectorAll('.timb'),function(b){b.onclick=function(){$('pilihTim').classList.remove('on');pakaiTim(+b.dataset.t)}})}
@@ -164,12 +166,12 @@ function pakaiTim(t){TIM=t;simpan(':tim',t);URUT=null;var x=D.tims[t-1]||{b:0,n:
  if(!x.b&&x.n){F.semua=true;segR='A';Array.prototype.forEach.call(document.querySelectorAll('#segR button'),function(q){q.classList.toggle('on',q.dataset.s=='A')});toast('Semua TO tim ini sudah diperiksa - ditampilkan hasilnya')}tombolF();
  $('bTim').textContent='Tim '+t+(D.tim>1?' ▾':'');$('bTim').style.background='#fff';$('bTim').style.color=TW[(t-1)%5];
  $('hKet').textContent=x.b+' TO belum diperiksa · '+x.k+' lokasi · data '+D.stempel;
- $('infoData').innerHTML='<b>'+esc(D.ulp)+'</b> &middot; Tim '+t+' dari '+D.tim+'<br>TO tim: '+x.n+' ('+x.b+' belum diperiksa)<br>Seluruh ULP: '+D.to.length+' TO, '+D.kel.length+' lokasi<br>Disusun '+esc(D.stempel)+(D.oleh?' oleh '+esc(D.oleh):'')+'<br><span class="t2">Sumber: '+((D.sumber||['hitrate']).map(function(s){return {aiscan:'TO kWh belum disahkan (AI Meter Scan)',house:'TO rumah belum disahkan (AI House Scan)',hit_kwh:'TO kWh disahkan (Hit n Rate)',hit_rumah:'TO rumah disahkan (Hit n Rate)',prepaid:'TO Prepaid Analysis',pindah:'TO Meter Pindah'}[s]||'TO P2TL Hit n Rate'}).join(' + '))+(D.blth?' · periode '+esc(D.blth):'')+'</span>';
+ $('infoData').innerHTML='<b>'+esc(D.ulp)+'</b> &middot; Tim '+t+' dari '+D.tim+'<br>TO tim: '+x.n+' ('+x.b+' belum diperiksa)<br>Seluruh ULP: '+D.to.length+' TO, '+D.kel.length+' lokasi<br>Disusun '+esc(D.stempel)+(D.oleh?' oleh '+esc(D.oleh):'')+'<br><span class="t2">Sumber: '+((D.sumber||['hitrate']).map(function(s){return {aiscan:'TO kWh belum disahkan (AI Meter Scan)',house:'TO rumah belum disahkan (AI House Scan)',hit_kwh:'TO kWh disahkan (Hit n Rate)',hit_rumah:'TO rumah disahkan (Hit n Rate)',prepaid:'TO Prepaid Analysis',pindah:'TO Meter Pindah',nonplg:'TO Non-Pelanggan (bangunan tanpa pelanggan)'}[s]||'TO P2TL Hit n Rate'}).join(' + '))+(D.blth?' · periode '+esc(D.blth):'')+'</span>';
  gambar();isiRute();isiKel();keWilayah()}
 /* ---------- peta ---------- */
 function bikinPeta(){if(peta)return;peta=L.map('peta',{zoomControl:false,attributionControl:true}).setView([2.9,99.1],11);
  dasar=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(peta);
- satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri'});
+ satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,maxNativeZoom:18,attribution:'Esri'});
  lapisK=L.layerGroup().addTo(peta);lapis=L.layerGroup().addTo(peta)}
 function warnaTitik(t){if(VIS[t.ip])return'#2e7d32';if(t.st=='B')return'#d32f2f';return t.st=='T'?'#7b1fa2':'#26a69a'}
 function gambar(){bikinPeta();lapis.clearLayers();lapisK.clearLayers();MK={};
@@ -210,10 +212,12 @@ $('bUrutSaya').onclick=function(){mulaiGps(function(){var s=sisaBelum().filter(f
 function gmapsUrl(){var o=urutan().filter(function(t){return t.lat!=null}).slice(0,4);if(!o.length)return null;
  var u='https://www.google.com/maps/dir/?api=1&travelmode=driving&destination='+o[o.length-1].lat+','+o[o.length-1].lon;
  if(POS)u+='&origin='+POS[0]+','+POS[1];if(o.length>1)u+='&waypoints='+o.slice(0,-1).map(function(t){return t.lat+','+t.lon}).join('%7C');return u}
-function chips(t){var h='';if(t.j.kwh)h+='<span class="pill">TO kWh</span>';if(t.j.rumah)h+='<span class="pill">TO Rumah</span>';if(t.j.prepaid)h+='<span class="pill">TO Prepaid</span>';if(t.j.alamat)h+='<span class="pill">Meter pindah</span>';if(t.ks)h+='<span class="pill o">kandidat AI · belum disahkan</span>';
+function chips(t){var h='';if(t.j.kwh)h+='<span class="pill">TO kWh</span>';if(t.j.rumah)h+='<span class="pill">TO Rumah</span>';if(t.j.prepaid)h+='<span class="pill">TO Prepaid</span>';if(t.j.alamat)h+='<span class="pill">Meter pindah</span>';if(t.j.np)h+='<span class="pill r">Bangunan tanpa pelanggan</span>'+(t.j.np.hn?'<span class="pill">'+esc(NPH[t.j.np.hn]||t.j.np.hn)+'</span>':'');if(t.ks)h+='<span class="pill o">kandidat AI · belum disahkan</span>';
  if(t.st=='T')h+='<span class="pill r">Temuan</span>';else if(t.st=='N')h+='<span class="pill g">Normal</span>';
  if(t.pa&&t.pa.kat&&t.pa.kat!='NORMAL'&&t.pa.kat!='DATA_KURANG')h+='<span class="pill o">'+esc(KAT[t.pa.kat]||t.pa.kat)+'</span>';
- if(t.lat==null)h+='<span class="pill r">tanpa koordinat</span>';return h}
+ if(t.lat==null)h+='<span class="pill r">tanpa koordinat</span>';
+ if(t.sv)h+='<span class="pill '+(t.sv[0]=='T'?'r':t.sv[0]=='G'?'o':'g')+'">'+({T:'Temuan',N:'Normal',G:'TO ganti kWh meter',S:'kWh sudah diganti'}[t.sv[0]]||'')+(t.sv[1]?' '+esc(t.sv[1]):'')+(t.sv[2]?' · '+esc(t.sv[2]):'')+'</span>';
+ if(typeof LAP!='undefined'&&LAP[t.ip])h+='<span class="pill">dilaporkan: '+HL[LAP[t.ip].h]+' '+esc(LAP[t.ip].j)+'</span>';return h}
 function baris(t){var cls=VIS[t.ip]?'v':(t.st=='B'?'':'s');var no=t.st=='B'?(t.u||'•'):(t.st=='T'?'T':'N');
  return '<div class="card" data-ip="'+t.ip+'"><div class="row"><div class="u '+cls+'">'+(VIS[t.ip]?'&#10003;':no)+'</div><div style="flex:1;min-width:0"><div class="t1">'+esc(t.ip)+(t.nm?' <span class="t2">· '+esc(t.nm)+'</span>':'')+'</div><div class="t2">'+esc(t.ds||'-')+(t.kc?', '+esc(t.kc):'')+' · '+esc(t.k)+'</div><div>'+chips(t)+'</div></div><div class="t2" style="white-space:nowrap">'+jarakT(t)+'</div></div></div>'}
 function isiRute(){var q=$('q').value.trim().toLowerCase(),xs;
@@ -253,17 +257,17 @@ function blokPA(pa){if(!pa)return'<h3>Analisa beli token</h3><div class="t2">Tid
   h+='<div class="spark">'+pa.bl.map(function(x){return '<div class="'+(x[1]>0?'':'z')+'" style="height:'+Math.max(4,Math.round(x[1]/mx*100))+'%" title="'+x[1]+' kWh"></div>'}).join('')+'</div><div class="sparkl">'+pa.bl.map(function(x){return '<span>'+bln(x[0]).split(' ')[0]+'</span>'}).join('')+'</div><div class="t2">kWh token dibeli per bulan (merah = tidak beli)</div>'}
  return h}
 var AKTIF=null;
-function kartu(t){if(!t)return;AKTIF=t;var sy=t.tm==TIM;
+function kartu(t){if(!t)return;if(t.np){kartuNP(t);return}AKTIF=t;var sy=t.tm==TIM;
  $('lJudul').innerHTML=(t.st=='B'?'#'+(t.u||'-')+' ':'')+esc(t.ip)+(sy?'':' <span class="pill" style="background:'+TW[(t.tm-1)%5]+';color:#fff">Tim '+t.tm+'</span>');
  var nav=t.lat!=null?'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination='+t.lat+','+t.lon:null;
  var h='<div>'+chips(t)+(VIS[t.ip]?'<span class="pill g">sudah dikunjungi '+esc(VIS[t.ip])+'</span>':'')+'</div>'+
   '<div class="foto" id="fotoBox" data-ip="'+t.ip+'"><div>memuat foto…</div><div>memuat foto…</div></div>'+
   '<div class="aksi">'+(nav?'<a class="btn" href="'+nav+'" target="_blank" rel="noopener">&#129517; Navigasi</a>':'<span class="btn l">tanpa koordinat</span>')+
   (sy&&t.st=='B'?'<button class="btn l" id="bVis">'+(VIS[t.ip]?'Batal tanda':'&#10003; Sudah dikunjungi')+'</button>':'<button class="btn l" id="bSalin">Salin IDPEL</button>')+'</div>'+
-  blokJ('TO kWh (AI Meter Scan)',t.j.kwh)+blokJ('TO Rumah (AI House Scan)',t.j.rumah)+blokJ('TO Prepaid Analysis',t.j.prepaid)+blokJ('TO Meter Pindah (Analisa Pindah Alamat)',t.j.alamat)+blokPA(t.pa)+
+  blokLap(t,sy)+blokJ('TO kWh (AI Meter Scan)',t.j.kwh)+blokJ('TO Rumah (AI House Scan)',t.j.rumah)+blokJ('TO Prepaid Analysis',t.j.prepaid)+blokJ('TO Meter Pindah (Analisa Pindah Alamat)',t.j.alamat)+blokPA(t.pa)+
   '<h3>Pelanggan</h3><dl><dt>IDPEL</dt><dd>'+esc(t.ip)+'</dd><dt>No meter</dt><dd>'+esc(t.nm||'-')+'</dd><dt>Nama</dt><dd>'+esc(t.na||'-')+'</dd><dt>Alamat</dt><dd>'+esc(t.al||'-')+'</dd><dt>Desa</dt><dd>'+esc(t.ds||'-')+'</dd><dt>Kecamatan</dt><dd>'+esc(t.kc||'-')+'</dd><dt>Tarif/Daya</dt><dd>'+esc(t.td||'-')+'</dd><dt>Lokasi</dt><dd>'+esc(t.k)+' · '+esc(t.sb||'-')+(POS&&t.lat!=null?' · '+jarakT(t)+' dari Anda':'')+'</dd></dl>'+
   (sy&&t.st=='B'?'<button class="btn w" id="bLanjut">TO berikutnya &#9654;</button>':'');
- $('lIsi').innerHTML=h;$('lembar').classList.add('on');$('lembar').scrollTop=0;isiFoto(t);
+ $('lIsi').innerHTML=h;$('lembar').classList.add('on');$('lembar').scrollTop=0;isiFoto(t);pasangLap(t);
  if(t.lat!=null&&$('vPeta').classList.contains('on'))peta.panTo([t.lat,t.lon]);
  if($('bVis'))$('bVis').onclick=function(){if(VIS[t.ip])delete VIS[t.ip];else{var d=new Date();VIS[t.ip]=d.getDate()+'/'+(d.getMonth()+1)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}simpan(':v',VIS);gambar();isiRute();kartu(t)};
  if($('bSalin'))$('bSalin').onclick=function(){try{navigator.clipboard.writeText(t.ip);toast('IDPEL disalin')}catch(e){}};
@@ -277,5 +281,100 @@ Array.prototype.forEach.call(document.querySelectorAll('nav button'),function(b)
 $('bOffline').onclick=async function(){var ks={};milik().forEach(function(t){if(t.f)ks[t.pk||t.k]=1});ks=Object.keys(ks);var ok=0;
  for(var i=0;i<ks.length;i++){$('offKet').textContent='Menyimpan foto '+(i+1)+'/'+ks.length+'…';try{await ambilPak(ks[i]);ok++}catch(e){}}
  $('offKet').textContent=ok==ks.length?'Selesai: foto '+ks.length+' lokasi tersimpan di HP ini.':'Tersimpan '+ok+'/'+ks.length+' lokasi; ulangi saat sinyal bagus.'};
+
+/* ---------- PATCH422B: hasil lapangan + laporan WA + status bersama ---------- */
+var LAP=ambil(':lap',{}),ST={};
+var HL={T:'Temuan',N:'Normal',G:'Ganti kWh meter',P:'P4 liar',C:'Ternyata pelanggan',K:'Kosong',F:'Fasilitas',X:'Tidak ditemukan'};
+var HK={T:'TEMUAN',N:'NORMAL',G:'GANTI KWH',P:'P4_LIAR',C:'PELANGGAN',K:'KOSONG',F:'FASILITAS',X:'TIDAK_DITEMUKAN'};
+function jamS(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function tglS(d){return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()}
+function blokLap(t,sy){if(!sy)return'';var l=LAP[t.ip];
+ return '<h3>Hasil pemeriksaan lapangan</h3>'+(l?'<div class="t2" style="margin-bottom:4px">Dilaporkan: <b>'+HL[l.h]+'</b> '+esc(l.tg+' '+l.j)+(l.lat!=null?' · GPS ±'+l.a+' m':' · tanpa GPS')+'</div>':'')+
+ '<input class="q" id="lapCt" placeholder="Catatan singkat (opsional)" value="'+esc(l&&l.ct||'')+'">'+
+ '<div class="lap"><button data-h="T" style="background:#7b1fa2">&#9888; Temuan</button><button data-h="N" style="background:#26a69a">&#10003; Normal</button><button data-h="G" style="background:#ef6c00">&#128295; Ganti kWh</button></div>'+
+ '<div class="t2">Titik GPS HP diambil saat tombol ditekan &mdash; tekan sambil berdiri di depan meter.</div>'}
+function pasangLap(t){Array.prototype.forEach.call(document.querySelectorAll('#lIsi .lap button'),function(b){b.onclick=function(){lapor(t,b.dataset.h)}})}
+function lapor(t,h){var ct=(($('lapCt')&&$('lapCt').value)||'').replace(/[|\n]/g,' ').trim().slice(0,80);toast('Mengambil titik GPS…');
+ var sL=function(lat,lon,a){var d=new Date();LAP[t.ip]={h:h,lat:lat,lon:lon,a:a,w:d.getTime(),j:jamS(d),tg:tglS(d),ct:ct};simpan(':lap',LAP);
+  VIS[t.ip]=d.getDate()+'/'+(d.getMonth()+1)+' '+jamS(d);simpan(':v',VIS);gambar();isiRute();kartu(t);
+  toast(HL[h]+' tersimpan'+(lat!=null?' (GPS ±'+a+' m)':' tanpa GPS')+' · kirim lewat Laporan hari ini')};
+ if(!navigator.geolocation){sL(null,null,null);return}
+ navigator.geolocation.getCurrentPosition(function(p){sL(+p.coords.latitude.toFixed(6),+p.coords.longitude.toFixed(6),Math.round(p.coords.accuracy||0))},
+  function(){sL(null,null,null)}/*PATCH436*/,{enableHighAccuracy:true,timeout:20000,maximumAge:0})}
+function lapHariIni(){var d=tglS(new Date());return Object.keys(LAP).filter(function(ip){return LAP[ip].tg==d}).map(function(ip){return [ip,LAP[ip]]}).sort(function(a,b){return a[1].w-b[1].w})}
+function teksLap(){var xs=lapHariIni(),nm=ambil(':nama','');var s='LAPORAN TO BARAKUDA\nULP: '+D.ulp+' · Tim '+TIM+'\nPetugas: '+(nm||'-')+'\nTanggal: '+tglS(new Date())+'\n';
+ xs.forEach(function(x,i){var l=x[1];s+=(i+1)+') '+x[0]+' | '+(HK[l.h]||'NORMAL')+' | '+(l.lat!=null?l.lat+','+l.lon+' ±'+l.a+'m':'tanpa GPS')+' | '+l.j+(l.ct?' | '+l.ct:'')+'\n'});
+ return s+(xs.some(function(x){return x[0].indexOf('NP-')==0})?'(tempel di BARAKUDA: Prepaid Analysis > Peta Data Dunia > TO Non-Pelanggan > Peta HP > Tempel laporan)':'(tempel di BARAKUDA: Peta TO HP > Tempel laporan lapangan)')}
+function bukaLap(){var xs=lapHariIni();$('lJudul').textContent='Laporan hari ini ('+xs.length+')';
+ var h='<label class="f">Nama petugas</label><input class="q" id="lapNama" value="'+esc(ambil(':nama',''))+'" placeholder="Nama Anda">'+
+ (xs.length?xs.map(function(x){var l=x[1];return '<div class="card" style="margin:6px 0"><b>'+esc(x[0])+'</b> · '+HL[l.h]+' · '+esc(l.j)+'<div class="t2">'+(l.lat!=null?'GPS ±'+l.a+' m':'tanpa GPS')+(l.ct?' · '+esc(l.ct):'')+'</div></div>'}).join(''):'<div class="ket">Belum ada laporan hari ini. Pilih hasil di kartu TO.</div>')+
+ (xs.length?'<button class="btn w" id="lapWA" style="background:#25D366">&#128228; Kirim ke TL lewat WhatsApp</button><button class="btn w l" id="lapSalin">Salin teks laporan</button>':'')+
+ '<div class="ket">TL menempelkan laporan ini di BARAKUDA. Setelah itu status TO terlihat oleh semua petugas yang membuka link ini (±15 menit).</div>';
+ $('lIsi').innerHTML=h;$('lembar').classList.add('on');$('lembar').scrollTop=0;
+ $('lapNama').onchange=function(){simpan(':nama',$('lapNama').value.trim())};
+ if($('lapWA'))$('lapWA').onclick=function(){simpan(':nama',$('lapNama').value.trim());kirimWA(teksLap())};
+ if($('lapSalin'))$('lapSalin').onclick=function(){simpan(':nama',$('lapNama').value.trim());var s=teksLap(),ok=false;
+  try{if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(s);ok=true}}catch(e){}
+  if(!ok){var ta=document.createElement('textarea');ta.value=s;document.body.appendChild(ta);ta.select();try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(ta)}
+  toast(ok?'Laporan disalin':'Gagal menyalin')}}
+async function muatStatus(){try{var r=await fetch('./status.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
+ var u=new Uint8Array(await r.arrayBuffer());var pt=await dekrip(K,u.slice(0,12),u.slice(12));ST=JSON.parse(new TextDecoder().decode(pt)).s||{};
+ var ub=0;D.to.forEach(function(t){var s=ST[t.ip];if(!s)return;t.sv=s;if(t.st=='B'){t.st=(s[0]=='T'?'T':'N');ub++}});
+ if(ub){gambar();isiRute();toast(ub+' TO sudah diperiksa (data server)')}}catch(e){}}
+$('bLapR').onclick=bukaLap;$('bLapP').onclick=bukaLap;
+/* ---------- PATCH429: TO Non-Pelanggan ---------- */
+var NPH={P4_LIAR:'Sambungan liar (P4)',PELANGGAN:'Ternyata pelanggan',KOSONG:'Kosong / bukan rumah',FASILITAS:'Ikut meter fasilitas/induk',TIDAK_DITEMUKAN:'Tidak ditemukan',LAINNYA:'Lainnya'};
+var miniP=null,SATU='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+function blokLapNP(t,sy){if(!sy)return'';var l=LAP[t.ip];
+ return '<h3>Hasil cek lapangan</h3>'+(l?'<div class="t2" style="margin-bottom:4px">Dilaporkan: <b>'+HL[l.h]+'</b> '+esc(l.tg+' '+l.j)+(l.lat!=null?' · GPS ±'+l.a+' m':' · tanpa GPS')+'</div>':'')+
+ '<input class="q" id="lapCt" placeholder="Catatan (isi IDPEL bila ternyata pelanggan)" value="'+esc(l&&l.ct||'')+'">'+
+ '<div class="lap" style="grid-template-columns:1fr 1fr"><button data-h="P" style="background:#c62828">&#9889; P4 liar</button><button data-h="C" style="background:#1565c0">&#128100; Ternyata pelanggan</button>'+
+ '<button data-h="K" style="background:#607d8b">Kosong / bukan rumah</button><button data-h="F" style="background:#00897b">Ikut meter fasilitas</button>'+
+ '<button data-h="X" style="background:#8d6e63;grid-column:1/3">Tidak ditemukan</button></div>'+
+ '<div class="t2">Titik GPS HP diambil saat tombol ditekan &mdash; tekan sambil berdiri di depan bangunan.</div>'}
+function isiFotoNP(t){var el=$('fotoBox'),n=t.np||{};if(!el)return;/*PATCH431*/if(!t.f){el.innerHTML='<div>belum ada foto jalan / rumah pelanggan di sekitar titik ini &mdash; pakai citra satelit &amp; Street View</div>';return}
+ ambilPak(t.pk||t.k).then(function(p){var x=p[t.ip]||{};if(!$('fotoBox')||$('fotoBox').dataset.ip!=t.ip)return;
+  $('fotoBox').innerHTML=(x.k?'<div style="flex:1"><img src="data:image/jpeg;base64,'+x.k+'" data-z="1"><span>Foto jalan terdekat (±'+esc(n.jj)+' m'+(n.jt?', '+esc(n.jt.replace("-","/")):'')+') &middot; &copy; KartaView</span></div>':'<div>belum ada foto jalan di sekitar titik ini</div>')+(x.r?'<div style="flex:1"><img src="data:image/jpeg;base64,'+x.r+'" data-z="1"><span>Rumah pelanggan terdekat (±'+esc(n.fj)+' m)</span></div>':'<div>belum ada foto rumah pelanggan di sekitar</div>');
+  Array.prototype.forEach.call(document.querySelectorAll('#fotoBox img'),function(i){i.onclick=function(){$('zImg').src=i.src;$('zoom').classList.add('on')}})})
+ .catch(function(){if($('fotoBox'))$('fotoBox').innerHTML='<div>foto belum bisa dimuat (sinyal)</div>'})}
+function kartuNP(t){AKTIF=t;var sy=t.tm==TIM,n=t.np||{},d=t.j.np||{};
+ $('lJudul').innerHTML=(t.st=='B'?'#'+(t.u||'-')+' ':'')+'TO-NP '+esc(n.no)+(sy?'':' <span class="pill" style="background:'+TW[(t.tm-1)%5]+';color:#fff">Tim '+t.tm+'</span>');
+ var nav='https://www.google.com/maps/dir/?api=1&travelmode=driving&destination='+t.lat+','+t.lon;
+ var sv='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+t.lat+','+t.lon;
+ var h='<div>'+chips(t)+(VIS[t.ip]?'<span class="pill g">sudah dikunjungi '+esc(VIS[t.ip])+'</span>':'')+'</div>'+
+  '<div id="miniSat" style="height:240px;border-radius:12px;overflow:hidden;margin:8px 0 4px;background:#dfe5e3"></div>'+
+  '<div class="t2">Citra satelit &middot; lingkaran merah = bangunan sasaran (atap ±'+esc(n.ls)+' m²). Perlu sinyal; geser/zoom untuk melihat sekitar.</div>'+
+  '<div class="foto" id="fotoBox" data-ip="'+t.ip+'"><div>memuat foto…</div></div>'+
+  '<div class="aksi"><a class="btn" href="'+nav+'" target="_blank" rel="noopener">&#129517; Navigasi</a><a class="btn l" href="'+sv+'" target="_blank" rel="noopener">&#128247; Street View</a></div>'+
+  '<div class="aksi">'+(sy&&t.st=='B'?'<button class="btn l" id="bVis">'+(VIS[t.ip]?'Batal tanda':'&#10003; Sudah dikunjungi')+'</button>':'')+'<button class="btn l" id="bSalinK">Salin koordinat</button></div>'+
+  blokLapNP(t,sy)+
+  '<h3>Bangunan sasaran</h3><dl><dt>No TO</dt><dd>TO-NP '+esc(n.no)+'</dd><dt>Status</dt><dd>'+esc(d.hn?(NPH[d.hn]||d.hn):'Belum dicek')+'</dd>'+
+  (d.hn?'<dt>Dicek</dt><dd>'+esc(d.tg||'-')+(d.ol?' · '+esc(d.ol):'')+'</dd>'+(d.ct?'<dt>Catatan</dt><dd>'+esc(d.ct)+'</dd>':''):'')+
+  '<dt>Luas atap</dt><dd>±'+esc(n.ls)+' m²</dd><dt>Pelanggan terdekat</dt><dd>'+(n.pt?esc(n.pt)+' · ±'+esc(n.ptj)+' m':'±'+esc(n.jr)+' m')+'</dd>'+
+  '<dt>Penduduk sekitar</dt><dd>±'+esc(n.pp)+' jiwa/ha</dd><dt>Kelurahan</dt><dd>'+esc(t.ds||'-')+'</dd><dt>Koordinat</dt><dd>'+t.lat+', '+t.lon+'</dd>'+
+  '<dt>Lokasi</dt><dd>'+esc(t.k)+(POS?' · '+jarakT(t)+' dari Anda':'')+'</dd></dl>'+
+  '<div class="t2" style="margin:6px 0">Yang dicek: bangunan dihuni / dipakai usaha? listrik dari mana (tarikan dari tiang, dari rumah tetangga, atau meter sendiri)? Bila ternyata pelanggan, catat IDPEL-nya.</div>'+
+  (sy&&t.st=='B'?'<button class="btn w" id="bLanjut">TO berikutnya &#9654;</button>':'');
+ $('lIsi').innerHTML=h;$('lembar').classList.add('on');$('lembar').scrollTop=0;isiFotoNP(t);pasangLap(t);
+ setTimeout(function(){try{if(miniP){miniP.remove();miniP=null}miniP=L.map('miniSat',{zoomControl:true,attributionControl:false}).setView([t.lat,t.lon],18);/*PATCH430b*/
+  L.tileLayer(SATU,{maxZoom:20,maxNativeZoom:18}).addTo(miniP);
+  L.circle([t.lat,t.lon],{radius:Math.max(7,Math.sqrt((+n.ls||60)/Math.PI)+4),color:'#ff1744',weight:3,fill:false}).addTo(miniP)}catch(e){}},80);
+ if($('vPeta').classList.contains('on'))peta.panTo([t.lat,t.lon]);
+ if($('bVis'))$('bVis').onclick=function(){if(VIS[t.ip])delete VIS[t.ip];else{var q=new Date();VIS[t.ip]=q.getDate()+'/'+(q.getMonth()+1)+' '+String(q.getHours()).padStart(2,'0')+':'+String(q.getMinutes()).padStart(2,'0')}simpan(':v',VIS);gambar();isiRute();kartu(t)};
+ $('bSalinK').onclick=function(){try{navigator.clipboard.writeText(t.lat+','+t.lon);toast('Koordinat disalin')}catch(e){}};
+ if($('bLanjut'))$('bLanjut').onclick=function(){var o=urutan().filter(function(x){return x!==t});if(!o.length){toast('Semua TO tim sudah dikunjungi');return}
+  var i=URUT?0:o.findIndex(function(x){return (x.u||0)>(t.u||0)});kartu(o[i>=0?i:0])}}
+
+/* ---------- PATCH436: kirim WA & browser bawaan aplikasi ---------- */
+function kirimWA(teks){var u='https://api.whatsapp.com/send?text='+encodeURIComponent(teks);
+ try{var a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()}catch(e){location.href=u}
+ setTimeout(function(){toast('Bila WhatsApp tidak terbuka: tekan "Salin teks laporan", lalu tempel di chat TL')},1800)}
+(function(){var ua=navigator.userAgent||'';var dalam=/FBAN|FBAV|Instagram|Line\/|WhatsApp|; wv\)/i.test(ua);if(!dalam)return;
+ var b=document.createElement('div');b.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99999;background:#B91C1C;color:#fff;padding:10px 12px;font:600 13px system-ui;display:flex;gap:8px;align-items:center';
+ var url=location.href,an=/Android/i.test(ua);
+ b.innerHTML='<span style="flex:1">Link ini terbuka di dalam aplikasi (WhatsApp). GPS &amp; kirim laporan bisa gagal. Buka lewat Chrome.</span>'+
+  (an?'<a style="background:#fff;color:#B91C1C;padding:6px 10px;border-radius:8px;text-decoration:none;white-space:nowrap" href="intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;end">Buka di Chrome</a>':'<span style="white-space:nowrap">⋮ › Buka di browser</span>')+
+  '<button style="background:none;border:0;color:#fff;font-size:18px" onclick="this.parentNode.remove()">✕</button>';
+ document.body.appendChild(b)})();
 mulai();
 </script></body></html>
