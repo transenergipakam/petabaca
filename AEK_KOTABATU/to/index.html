@@ -52,6 +52,7 @@ section{position:absolute;inset:0;overflow:auto;padding:10px 10px 90px;display:n
 .foto span{position:absolute;left:6px;top:6px;background:#0009;color:#fff;font-size:10px;padding:2px 7px;border-radius:999px}
 dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:6px 0;font-size:12.5px}dt{color:#5b6e69}dd{margin:0;font-weight:600;word-break:break-word}
 h3{font-size:12px;letter-spacing:.4px;color:#0f5a4a;margin:12px 0 4px;text-transform:uppercase}
+.nl{border:1px solid #c7d2fe;border-left:5px solid #6366f1;border-radius:12px;padding:9px 11px;margin:8px 0;background:#fafaff}.nl ul{margin:4px 0 0;padding-left:18px}.nl li{font-size:12.5px;line-height:1.5}/*PATCH444b*/
 .est{background:linear-gradient(135deg,#fff5f3,#fdecea);border:1px solid #f3c9c2;border-radius:12px;padding:9px 11px;margin:6px 0}
 .est b{display:block;font-size:20px;color:#b71c1c}
 .aksi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
@@ -256,6 +257,8 @@ function blokPA(pa){if(!pa)return'<h3>Analisa beli token</h3><div class="t2">Tid
  if(pa.bl&&pa.bl.length){var mx=Math.max.apply(null,pa.bl.map(function(x){return x[1]}))||1;
   h+='<div class="spark">'+pa.bl.map(function(x){return '<div class="'+(x[1]>0?'':'z')+'" style="height:'+Math.max(4,Math.round(x[1]/mx*100))+'%" title="'+x[1]+' kWh"></div>'}).join('')+'</div><div class="sparkl">'+pa.bl.map(function(x){return '<span>'+bln(x[0]).split(' ')[0]+'</span>'}).join('')+'</div><div class="t2">kWh token dibeli per bulan (merah = tidak beli)</div>'}
  return h}
+var NLW={PRIORITAS:['#b91c1c','#fee2e2','Prioritas dicek'],PERLU_CEK:['#b45309','#fef3c7','Perlu dicek'],WAJAR:['#15803d','#dcfce7','Pola wajar']};
+function blokNL(n){if(!n)return'';var w=NLW[n.k]||['#334155','#f1f5f9',n.k||'-'];var h='<h3>Penalaran AI (pola beli token)</h3><div class="nl"><span class="pill" style="background:'+w[1]+';color:'+w[0]+'">'+esc(w[2])+'</span>';if(n.a&&n.a.length)h+='<ul>'+n.a.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>';if(n.m)h+='<div class="t2">🌦️ '+esc(n.m)+'</div>';if(n.c)h+='<div class="t2">🔎 <b>Cek di lapangan:</b> '+esc(n.c)+'</div>';h+='<div class="t2" style="font-size:11px">Indikasi dari pola beli token, bukan temuan. Pastikan di lapangan.'+(n.d?' · dinalar '+esc(n.d):'')+'</div></div>';return h}
 var AKTIF=null;
 function kartu(t){if(!t)return;if(t.np){kartuNP(t);return}AKTIF=t;var sy=t.tm==TIM;
  $('lJudul').innerHTML=(t.st=='B'?'#'+(t.u||'-')+' ':'')+esc(t.ip)+(sy?'':' <span class="pill" style="background:'+TW[(t.tm-1)%5]+';color:#fff">Tim '+t.tm+'</span>');
@@ -264,7 +267,7 @@ function kartu(t){if(!t)return;if(t.np){kartuNP(t);return}AKTIF=t;var sy=t.tm==T
   '<div class="foto" id="fotoBox" data-ip="'+t.ip+'"><div>memuat foto…</div><div>memuat foto…</div></div>'+
   '<div class="aksi">'+(nav?'<a class="btn" href="'+nav+'" target="_blank" rel="noopener">&#129517; Navigasi</a>':'<span class="btn l">tanpa koordinat</span>')+
   (sy&&t.st=='B'?'<button class="btn l" id="bVis">'+(VIS[t.ip]?'Batal tanda':'&#10003; Sudah dikunjungi')+'</button>':'<button class="btn l" id="bSalin">Salin IDPEL</button>')+'</div>'+
-  blokLap(t,sy)+blokJ('TO kWh (AI Meter Scan)',t.j.kwh)+blokJ('TO Rumah (AI House Scan)',t.j.rumah)+blokJ('TO Prepaid Analysis',t.j.prepaid)+blokJ('TO Meter Pindah (Analisa Pindah Alamat)',t.j.alamat)+blokPA(t.pa)+
+  blokLap(t,sy)+blokJ('TO kWh (AI Meter Scan)',t.j.kwh)+blokJ('TO Rumah (AI House Scan)',t.j.rumah)+blokJ('TO Prepaid Analysis',t.j.prepaid)+blokJ('TO Meter Pindah (Analisa Pindah Alamat)',t.j.alamat)+blokPA(t.pa)+blokNL(t.nl)+
   '<h3>Pelanggan</h3><dl><dt>IDPEL</dt><dd>'+esc(t.ip)+'</dd><dt>No meter</dt><dd>'+esc(t.nm||'-')+'</dd><dt>Nama</dt><dd>'+esc(t.na||'-')+'</dd><dt>Alamat</dt><dd>'+esc(t.al||'-')+'</dd><dt>Desa</dt><dd>'+esc(t.ds||'-')+'</dd><dt>Kecamatan</dt><dd>'+esc(t.kc||'-')+'</dd><dt>Tarif/Daya</dt><dd>'+esc(t.td||'-')+'</dd><dt>Lokasi</dt><dd>'+esc(t.k)+' · '+esc(t.sb||'-')+(POS&&t.lat!=null?' · '+jarakT(t)+' dari Anda':'')+'</dd></dl>'+
   (sy&&t.st=='B'?'<button class="btn w" id="bLanjut">TO berikutnya &#9654;</button>':'');
  $('lIsi').innerHTML=h;$('lembar').classList.add('on');$('lembar').scrollTop=0;isiFoto(t);pasangLap(t);
